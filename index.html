@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="메신저와 메일에서 자주 흔들리는 한국어 맞춤법을 빈칸 퀴즈로 익히는 개인 연습 공책.">
+  <title>맞춤공책</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23fbf6ec' width='32' height='32'/%3E%3Cpath stroke='%23e07a72' d='M8 0v32'/%3E%3Cpath stroke='%23241c16' stroke-width='1.4' d='M12 10h14M12 16h14M12 22h10'/%3E%3C/svg%3E">
+  <style>
+:root {
+  --desk: #e4dccb;
+  --paper: #fbf6ec;
+  --ink: #241c16;
+  --muted: #6f6458;
+  --line: #eadfce;
+  --margin: #e07a72;
+  --pen: #d3122a;
+  --pen-soft: rgba(211, 18, 42, 0.08);
+  --good: #157a3c;
+  --good-soft: rgba(21, 122, 60, 0.1);
+  --stamp: #1e3a5f;
+  --pine: #157a3c;
+  --shadow: 0 18px 40px rgba(70, 48, 20, 0.1);
+  --sans: "Noto Sans CJK KR", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+  --serif: "Noto Serif CJK KR", "Noto Serif KR", "Apple Myungjo", "Batang", "Songti SC", serif;
+  --sheet: 760px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--sans);
+  background-color: var(--desk);
+  background-image:
+    radial-gradient(rgba(70, 48, 20, 0.035) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+  line-height: 1.55;
+}
+
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.wrap {
+  width: min(var(--sheet), calc(100% - 28px));
+  margin: 0 auto;
+  padding: 28px 0 88px;
+}
+
+.mast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.brand p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+.nav { display: flex; gap: 6px; }
+.nav button, .tabbar button, .btn, .chip {
+  border: 1px solid transparent;
+  background: transparent;
+}
+.nav button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--muted);
+}
+.nav button[aria-current="page"] {
+  background: var(--ink);
+  color: #fbf6ec;
+}
+
+.sheet {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid #e5d8c4;
+  box-shadow: var(--shadow);
+  padding: 28px 28px 32px 56px;
+  min-height: 68vh;
+}
+.sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 36px;
+  width: 1px;
+  background: var(--margin);
+}
+
+.lede {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+.sub { margin: 0 0 18px; color: var(--muted); }
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.stat {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.45);
+  padding: 6px 10px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+.stat strong { color: var(--ink); font-weight: 650; }
+
+.block-label {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.chip {
+  border-color: #ddcfbb;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 0.92rem;
+}
+.chip small { color: var(--muted); margin-left: 4px; }
+.chip[aria-pressed="true"] {
+  background: var(--stamp);
+  border-color: var(--stamp);
+  color: #f7f3ea;
+}
+.chip[aria-pressed="true"] small { color: rgba(247, 243, 234, 0.75); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fbf6ec;
+  padding: 12px 16px;
+  border-radius: 4px;
+  min-height: 48px;
+}
+.btn.secondary {
+  background: transparent;
+  color: var(--ink);
+}
+.btn.ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  padding-left: 0;
+  padding-right: 0;
+}
+.hint { color: var(--muted); font-size: 0.9rem; margin: 14px 0 0; }
+
+.banner {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  background: var(--pen-soft);
+  color: #8d1020;
+  font-size: 0.92rem;
+}
+
+.qhead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.kicker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--stamp);
+  font-size: 0.86rem;
+}
+.kicker .dot { width: 6px; height: 6px; background: var(--pen); border-radius: 50%; }
+.count { margin: 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar {
+  height: 4px;
+  background: #e4d3bc;
+  margin: 2px 0 22px;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar span { display: block; height: 100%; background: var(--stamp); }
+
+.sentence {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+}
+.blank {
+  display: inline-block;
+  min-width: 3.2em;
+  border-bottom: 1.5px solid var(--ink);
+  transform: translateY(-2px);
+  margin: 0 0.15em;
+  text-align: center;
+  font-weight: 650;
+  line-height: 1.2;
+}
+.blank.filled.good { color: var(--good); border-bottom-color: var(--good); }
+
+.choices { display: flex; flex-direction: column; margin: 8px 0 4px; }
+.choice {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 8px 14px 2rem;
+  font-size: 1.12rem;
+  min-height: 56px;
+  white-space: pre-wrap;
+}
+.choice:hover:not(:disabled) { background: rgba(36, 28, 22, 0.03); }
+.choice .num {
+  position: absolute;
+  left: 0;
+  top: 16px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.choice .label { position: relative; display: inline-block; }
+.choice.is-wrong .label {
+  color: var(--pen);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--pen);
+}
+.choice.is-right .label::before {
+  content: "";
+  position: absolute;
+  inset: -0.32rem -0.62rem;
+  border: 2px solid var(--good);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.verdict {
+  display: inline-block;
+  margin: 16px 0 8px;
+  border-radius: 50%;
+  padding: 6px 12px 8px;
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  transform: rotate(-8deg);
+}
+.verdict.good { color: var(--good); border: 2px solid var(--good); }
+.verdict.bad { color: var(--pen); border: 2px solid var(--pen); }
+.explain {
+  margin-top: 8px;
+  padding: 14px 0 0;
+  border-top: 1px dashed #e3d5c2;
+}
+.explain h3 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 650;
+}
+.explain.good h3 { color: var(--good); }
+.explain.bad h3 { color: var(--pen); }
+.explain p { margin: 0 0 8px; }
+.tip {
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(30, 58, 95, 0.05);
+  color: var(--stamp);
+}
+
+.foot-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+.scoreline {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.score {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 8vw, 4.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+.score-hit { color: var(--good); }
+.score .score-of { font-size: 0.42em; color: var(--muted); letter-spacing: 0; }
+.score-miss {
+  margin: 6px 0 0;
+  color: var(--pen);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+.meta { margin: 0; color: var(--muted); text-align: right; }
+.comment {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  margin: 8px 0 16px;
+}
+
+.review { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+.review article {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.review header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.review .mini {
+  margin: 6px 0;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+}
+.tag-wrong { color: var(--pen); }
+.tag-ok { color: var(--pine); }
+.filter-row { display: flex; gap: 8px; margin: 8px 0 4px; }
+.filter-row button[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fbf6ec;
+  border-color: var(--ink);
+}
+
+.note-group { margin-top: 18px; }
+.note-group h3 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+.note-card {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.note-card p { margin: 6px 0; }
+.note-card .why { color: var(--muted); font-size: 0.95rem; }
+
+.history { display: flex; flex-direction: column; }
+.history article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.history .when { color: var(--muted); font-size: 0.88rem; }
+.history .pts {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  text-align: right;
+}
+.history .pts .score-hit { color: var(--good); }
+.pick-good { color: var(--good); font-weight: 650; }
+.pick-bad { color: var(--pen); font-weight: 650; text-decoration: line-through; text-decoration-thickness: 2px; }
+
+.wbars { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 18px; }
+.wrow { display: grid; grid-template-columns: minmax(7.5rem, 34%) 1fr; gap: 8px 12px; align-items: center; }
+.wname { font-size: 0.95rem; }
+.wname small { display: block; color: var(--muted); }
+.wtrack { height: 12px; background: #efe4d4; border-radius: 99px; overflow: hidden; }
+.wfill { display: block; height: 100%; border-radius: 99px; }
+.wfill.good { background: var(--good); }
+.wfill.mid { background: #c47b2b; }
+.wfill.bad { background: var(--pen); }
+.weak-call {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--pen-soft);
+}
+.weak-call strong { color: var(--pen); }
+.miss-list { display: flex; flex-direction: column; }
+.miss-list article { padding: 12px 0; border-top: 1px solid var(--line); }
+.miss-list .mini { margin: 4px 0; font-family: var(--serif); font-size: 1.05rem; }
+.empty {
+  margin: 12px 0;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+
+.tabbar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f1e6;
+  border-top: 1px solid #e0d3c0;
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+  z-index: 5;
+}
+.tabbar button {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 6px 2px;
+}
+.tabbar button[aria-current="page"] {
+  color: var(--ink);
+  background: rgba(36, 28, 22, 0.06);
+}
+.badge {
+  display: inline-block;
+  min-width: 1.2em;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--pen);
+  color: white;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 720px) {
+  .wrap { width: min(100% - 16px, var(--sheet)); padding-top: 16px; }
+  .mast { align-items: flex-start; }
+  .nav { display: none; }
+  .tabbar { display: flex; gap: 4px; }
+  .sheet { padding: 22px 16px 24px 28px; }
+  .sheet::before { left: 14px; }
+  .brand h1 { font-size: 1.7rem; }
+  .sentence { font-size: 1.32rem; }
+  .scoreline { align-items: flex-start; flex-direction: column; }
+  .meta { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+}
+
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript><p>이 공책은 자바스크립트로 동작합니다. 브라우저에서 스크립트를 켜 주세요.</p></noscript>
+  <script>
+const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sentence":"지금 나가면 안 ____. 비 오기 시작했어.","choices":["돼","되"],"answer":"돼","explain":"‘돼’는 ‘되어’를 줄인 말입니다. ‘안 돼’는 ‘안 되어’이므로 ‘돼’로 끝냅니다.","tip":"자리에 ‘하’를 넣어 보세요. ‘안 해’가 자연스러우면 ‘돼’, ‘하면·하고·하지’처럼 ‘하’가 살면 ‘되’입니다."},{"id":"doe-02","category":"되/돼","scene":"메일","sentence":"이번 분기에는 이렇게만 ____ 흑자입니다.","choices":["되면","돼면"],"answer":"되면","explain":"‘되면’은 어간 ‘되-’에 ‘-면’이 붙은 말입니다. ‘-어’가 붙는 자리가 아니라서 ‘돼’로 줄이지 않습니다.","tip":"‘하면’은 말이 되고 ‘해면’은 말이 안 됩니다. 그래서 ‘되면’입니다."},{"id":"doe-03","category":"되/돼","scene":"메신저","sentence":"늦게 공유해서 미안. 이제야 시간이 ____.","choices":["됐어","됬어"],"answer":"됐어","explain":"‘되었어’의 준말은 ‘됐어’입니다. ‘됬’이라는 글자는 없습니다.","tip":"‘되었다, 되었어, 되었고’는 ‘됐다, 됐어, 됐고’로 줄입니다."},{"id":"doe-04","category":"되/돼","scene":"메일","sentence":"수정본은 ____ 바로 올리겠습니다.","choices":["되는 대로","돼는 대로"],"answer":"되는 대로","explain":"‘되는’은 ‘되-’에 관형형 어미 ‘-는’이 붙은 형태입니다. ‘돼는’으로 줄이지 않습니다.","tip":"‘하는 대로’가 자연스러우면 ‘되는 대로’입니다."},{"id":"doe-05","category":"되/돼","scene":"메신저","sentence":"이렇게 ____ 정말 다행이야.","choices":["돼서","되서"],"answer":"돼서","explain":"‘되어서’를 줄이면 ‘돼서’입니다. ‘되서’는 틀린 표기입니다.","tip":"‘해서’가 되면 ‘돼서’, ‘해서’가 아니면 ‘되’를 유지합니다."},{"id":"doe-06","category":"되/돼","scene":"메신저","sentence":"회원 가입이 아직 ____. 메일함 좀 봐 줘.","choices":["안 됐어","안 됬어"],"answer":"안 됐어","explain":"‘안 되었어’의 준말은 ‘안 됐어’입니다. 부정 부사 ‘안’은 띄어 쓰고, ‘됬’은 쓰지 않습니다.","tip":"준말의 ‘됐’에는 시옷이 없습니다. ‘됬’으로 치면 맞춤법 검사에 걸립니다."},{"id":"doe-07","category":"되/돼","scene":"메신저","sentence":"그 경력이면 팀장이 ____ 남을 정도야.","choices":["되고도","돼고도"],"answer":"되고도","explain":"‘되고도’는 ‘되-’ 뒤에 ‘-고’가 온 말입니다. ‘돼고’는 성립하지 않습니다.","tip":"‘하고도’가 되면 ‘되고도’입니다. ‘해고도’는 어색합니다."},{"id":"doe-08","category":"되/돼","scene":"메일","sentence":"아이디어가 제품이 ____ 과정을 공유합니다.","choices":["되는","돼는"],"answer":"되는","explain":"관형형 ‘-는’ 앞에서는 줄임이 일어나지 않아 ‘되는’이 맞습니다.","tip":"‘하는 과정’처럼 읽히면 ‘되는’입니다."},{"id":"doe-09","category":"되/돼","scene":"메일","sentence":"결과 발표는 금요일에 ____.","choices":["돼요","되요"],"answer":"돼요","explain":"‘되어요’를 줄여 ‘돼요’라고 적습니다. ‘되요’는 ‘하요’처럼 어법에 맞지 않습니다.","tip":"‘해요’가 되면 ‘돼요’, ‘하요’는 없으므로 ‘되요’도 없습니다."},{"id":"doe-10","category":"되/돼","scene":"메신저","sentence":"어렸을 때는 요리사가 ____ 싶었다.","choices":["되고","돼고"],"answer":"되고","explain":"‘되고’는 ‘되- + -고’입니다. 연결 어미 ‘-고’ 앞은 ‘돼’로 바꾸지 않습니다.","tip":"‘하고 싶다’로 바꾸어지면 ‘되고 싶다’입니다."},{"id":"doe-11","category":"되/돼","scene":"메신저","sentence":"같이 가면 ____. 너무 미안해하지 마.","choices":["돼","되"],"answer":"돼","explain":"문장을 끝내는 ‘돼’는 ‘되어’입니다. ‘되’만으로는 문장을 끝낼 수 없습니다.","tip":"‘같이 가면 해’가 되면 ‘돼’입니다."},{"id":"doe-12","category":"되/돼","scene":"메일","sentence":"조건이 ____ 바로 계약하겠습니다.","choices":["돼야","되야"],"answer":"돼야","explain":"‘되어야’의 준말은 ‘돼야’입니다. ‘되야’는 틀린 표기입니다.","tip":"‘해야’가 맞으면 ‘돼야’입니다. ‘하야’라는 말은 없습니다."},{"id":"an-01","category":"안/않","scene":"메신저","sentence":"아침은 ____ 먹었어. 커피만 마셨다.","choices":["안","않"],"answer":"안","explain":"‘안’은 동사 앞에서 부정을 나타내는 부사입니다. ‘않’은 동사 ‘않다’의 어간이라 혼자 부사로 쓸 수 없습니다.","tip":"뒤에 ‘-지’ 없이 동사만 있으면 ‘안’. ‘-지 않다’로 바꿀 수 있는 자리만 ‘않’입니다."},{"id":"an-02","category":"안/않","scene":"메신저","sentence":"커피만 마시고 아침은 ____.","choices":["먹지 않았어","먹지 안았어"],"answer":"먹지 않았어","explain":"긴 부정은 ‘-지 않다’입니다. ‘않다’는 ‘아니하다’가 줄어든 동사이고, ‘안다’가 아닙니다.","tip":"‘않’ 뒤에는 동사 어미가 이어집니다. ‘않았어, 않아, 않고’."},{"id":"an-03","category":"안/않","scene":"메신저","sentence":"오늘은 야근 ____. 칼퇴근이야.","choices":["안 해","않 해"],"answer":"안 해","explain":"짧은 부정은 부사 ‘안’을 띄어 씁니다. ‘않 해’처럼 ‘않’을 부사로 두지 않습니다.","tip":"‘안 하다 / 하지 않다’ 둘 다 맞지만, ‘않 하다’는 틀립니다."},{"id":"an-04","category":"안/않","scene":"메일","sentence":"그 의견에는 ____.","choices":["동의하지 않아","동의하지 안아"],"answer":"동의하지 않아","explain":"‘-지’ 뒤의 부정 동사는 ‘않다’입니다. ‘안아’는 ‘안다(품다)’의 활용이라 부정이 아닙니다.","tip":"‘아니하다’를 줄이면 ‘않다’입니다. 품는 ‘안다’와 소리가 비슷해도 표기가 다릅니다."},{"id":"an-05","category":"안/않","scene":"메일","sentence":"아직 ____ 일이라 일정표에 넣지 마세요.","choices":["안 한","않은"],"answer":"안 한","explain":"부사 ‘안’은 ‘안 한 일’처럼 바로 동사 앞에 옵니다. ‘않은’은 ‘않다’의 활용이라 앞에 ‘-지’가 필요합니다.","tip":"‘하지 않은 일’은 맞습니다. ‘않은 일’만 쓰면 앞에 붙을 ‘-지’가 빠진 것입니다."},{"id":"an-06","category":"안/않","scene":"메신저","sentence":"변명은 ____ 거야. 결과로 말할게.","choices":["안 할","않을"],"answer":"안 할","explain":"‘않을’은 ‘않다’라서 ‘하지 않을’처럼 ‘-지’가 있어야 합니다. 부사 부정은 ‘안 할’입니다.","tip":"‘안 할 거야’와 ‘하지 않을 거야’는 둘 다 되고, ‘않을 거야’만은 안 됩니다."},{"id":"an-07","category":"안/않","scene":"메모","sentence":"이름을 불러도 ____.","choices":["대답하지 않았다","대답하지 안았다"],"answer":"대답하지 않았다","explain":"과거 부정은 ‘-지 않았다’입니다. ‘안았다’는 부정 ‘않다’가 아닙니다.","tip":"‘않았다’의 ‘않’을 ‘안’으로 적는 실수가 많습니다. 어간은 ‘않-’입니다."},{"id":"an-08","category":"안/않","scene":"메신저","sentence":"자료는 아직 ____. 도착하면 바로 전달할게.","choices":["안 왔어","않 왔어"],"answer":"안 왔어","explain":"‘오다’를 짧게 부정하면 ‘안 왔어’입니다. ‘않’은 ‘않다’에만 씁니다.","tip":"동사 바로 앞의 짧은 부정은 언제나 띄어 쓴 ‘안’입니다."},{"id":"ro-01","category":"로서/로써","scene":"메일","sentence":"팀 리더____ 먼저 경과를 공유드립니다.","choices":["로서","로써"],"answer":"로서","explain":"‘로서’는 지위나 자격입니다. 팀 리더라는 자격으로 말하는 자리이므로 ‘로서’입니다.","tip":"사람·신분·자격이면 ‘로서’. ‘자격으로’로 바꾸어지면 ‘로서’입니다."},{"id":"ro-02","category":"로서/로써","scene":"메일","sentence":"사실은 회의 기록____ 확인하겠습니다.","choices":["으로써","으로서"],"answer":"으로써","explain":"기록을 수단으로 확인하므로 ‘로써’입니다. ‘로써’는 도구나 방법 앞에 씁니다.","tip":"‘써서, 이용해서’로 풀어지면 ‘로써’입니다."},{"id":"ro-03","category":"로서/로써","scene":"메신저","sentence":"선배____ 충고 하나 할게.","choices":["로서","로써"],"answer":"로서","explain":"선배라는 자격에서 하는 말이므로 ‘로서’입니다. 도구가 아닙니다.","tip":"‘선배 자격으로’가 되면 ‘로서’입니다."},{"id":"ro-04","category":"로서/로써","scene":"메신저","sentence":"이 갈등은 대화____ 풀 수 있는 문제예요.","choices":["로써","로서"],"answer":"로써","explain":"대화는 문제를 푸는 수단이므로 ‘로써’입니다.","tip":"수단이면 ‘로써’, 자격이면 ‘로서’입니다."},{"id":"ro-05","category":"로서/로써","scene":"메일","sentence":"보호자____ 동의서에 서명해 주세요.","choices":["로서","로써"],"answer":"로서","explain":"보호자라는 자격으로 서명하는 것이므로 ‘로서’입니다.","tip":"빈칸 앞이 역할이나 신분이면 ‘로서’를 먼저 떠올리세요."},{"id":"ro-06","category":"로서/로써","scene":"공지","sentence":"이 도장____ 접수가 완료됩니다.","choices":["으로써","으로서"],"answer":"으로써","explain":"도장은 접수를 끝내는 수단이므로 ‘으로써’입니다.","tip":"도장·서류·말처럼 쓰는 도구면 ‘로써’입니다."},{"id":"ro-07","category":"로서/로써","scene":"메일","sentence":"회사 대표____ 인사드립니다.","choices":["로서","로써"],"answer":"로서","explain":"대표라는 자격으로 인사하므로 ‘로서’입니다.","tip":"‘대표의 자격으로’로 읽히면 ‘로서’입니다."},{"id":"ro-08","category":"로서/로써","scene":"공지","sentence":"이로____ 오늘 오리엔테이션을 마치겠습니다.","choices":["써","서"],"answer":"써","explain":"‘이로써’는 ‘이것을 써서, 그 결과로’라는 뜻입니다. 자격의 ‘이로서’가 아닙니다.","tip":"끝을 맺는 ‘이로써’는 언제나 ‘써’입니다. ‘써’를 ‘써서’로 풀어 보세요."},{"id":"wen-01","category":"웬/왠","scene":"메신저","sentence":"오늘은 ____ 피곤이 안 풀리네.","choices":["왠지","웬지"],"answer":"왠지","explain":"‘왠지’는 ‘왜인지’가 줄어든 말입니다. 이유 없이 그런 느낌이 들 때 이 표기만 ‘왠’을 씁니다.","tip":"‘왜인지’로 풀어지면 ‘왠지’. 그 밖의 ‘웬’은 모두 ‘어찌 된’이라는 뜻입니다."},{"id":"wen-02","category":"웬/왠","scene":"메신저","sentence":"비 오는 날 소풍이라니, 이게 ____이야.","choices":["웬일","왠일"],"answer":"웬일","explain":"‘웬일’은 ‘어찌 된 일’입니다. ‘왠일’은 틀린 표기입니다.","tip":"‘왠’이 들어가는 표준어는 ‘왠지’ 하나입니다."},{"id":"wen-03","category":"웬/왠","scene":"메일","sentence":"____하면 그 조건으로 진행하겠습니다.","choices":["웬만하면","왠만하면"],"answer":"웬만하면","explain":"‘웬만하면’은 ‘정도가 대체로 괜찮으면’이라는 뜻의 ‘웬만하다’입니다.","tip":"‘만하면’ 앞은 ‘웬’입니다. ‘왠지’만 예외로 기억하세요."},{"id":"wen-04","category":"웬/왠","scene":"댓글","sentence":"아침부터 ____ 응원이 쏟아졌어.","choices":["웬","왠"],"answer":"웬","explain":"‘웬 응원’은 ‘어찌 된 응원, 뜻밖의 응원’입니다. ‘왠’로 적지 않습니다.","tip":"‘무슨, 어찌 된’으로 바꾸어지면 ‘웬’입니다."},{"id":"wen-05","category":"웬/왠","scene":"메신저","sentence":"____ 일로 새벽부터 전화했어?","choices":["웬","왠"],"answer":"웬","explain":"‘웬일’은 한 단어이고, ‘웬 일’처럼 띄어 쓸 수도 있지만 표기의 머리는 ‘웬’입니다.","tip":"‘왠 일’은 없습니다. ‘왠지’ 외에는 ‘웬’입니다."},{"id":"wen-06","category":"웬/왠","scene":"메모","sentence":"이유는 없는데 ____ 그 골목이 꺼림칙하다.","choices":["왠지","웬지"],"answer":"왠지","explain":"막연한 이유일 때는 ‘왜인지’의 준말 ‘왠지’를 씁니다.","tip":"‘왜 그런지 모르게’로 바꾸어지면 ‘왠지’입니다."},{"id":"dd-01","category":"든/던","scene":"메신저","sentence":"커피____ 차든지, 편한 걸로 시켜.","choices":["든지","던지"],"answer":"든지","explain":"‘-든지’는 선택입니다. 커피나 차나 어느 쪽이든 괜찮다는 뜻이므로 ‘든지’입니다.","tip":"‘또는, 어느 쪽이든’이면 ‘든지’. 지난 일을 돌이키면 ‘던지’입니다."},{"id":"dd-02","category":"든/던","scene":"메신저","sentence":"어제 누가 그 말을 먼저 했____ 기억이 안 나.","choices":["던지","든지"],"answer":"던지","explain":"과거를 회상하며 불확실하게 물을 때는 ‘-던지’입니다. ‘-더-’가 들어 있습니다.","tip":"‘더’가 들어가면 ‘던지’, 선택이라면 ‘든지’입니다."},{"id":"dd-03","category":"든/던","scene":"메신저","sentence":"얼마나 춥____ 장갑 낀 손이 얼었더라.","choices":["던지","든지"],"answer":"던지","explain":"‘얼마나 -던지’는 지난 상황의 정도가 심했다는 감탄입니다. 회상의 ‘-더-’가 있습니다.","tip":"지난 일을 ‘얼마나’와 함께 감탄하면 ‘던지’입니다."},{"id":"dd-04","category":"든/던","scene":"메신저","sentence":"뭐____ 괜찮아. 메뉴는 네게 맡길게.","choices":["든지","던지"],"answer":"든지","explain":"‘뭐든지’는 ‘무엇이든 가리지 않는다’는 선택·양보의 말입니다.","tip":"‘아무거나’로 바꾸어지면 ‘든지’입니다."},{"id":"dd-05","category":"든/던","scene":"댓글","sentence":"그 집 국수, 작년에 얼마나 맵____ 아직도 생각나.","choices":["던지","든지"],"answer":"던지","explain":"작년에 겪은 일을 돌이키는 감탄이므로 ‘맵던지’입니다.","tip":"시점이 과거이고 정도가 남으면 ‘던지’입니다."},{"id":"dd-06","category":"든/던","scene":"메신저","sentence":"남이 오____ 말든지 나는 오늘 갈게.","choices":["든지","던지"],"answer":"든지","explain":"오거나 말거나 어느 쪽이든 상관없다는 선택이므로 ‘오든지’입니다.","tip":"‘-든지 -든지’가 짝을 이루면 둘 다 ‘든지’입니다."},{"id":"dd-07","category":"든/던","scene":"메모","sentence":"어디를 쏘다녔____ 신발이 다 젖었다.","choices":["던지","든지"],"answer":"던지","explain":"이미 돌아다닌 상황을 회상하는 자리이므로 ‘쏘다녔던지’입니다.","tip":"과거 회상 어미 ‘-더-’가 보이면 ‘던’ 계열입니다."},{"id":"dd-08","category":"든/던","scene":"메신저","sentence":"필요하면 언제____ 이 번호로 전화해.","choices":["든지","던지"],"answer":"든지","explain":"‘언제든지’는 ‘어느 때라도’라는 양보입니다. 지난 때를 회상하는 말이 아닙니다.","tip":"‘아무 때나’이면 ‘든지’입니다."},{"id":"dd-09","category":"든/던","scene":"메신저","sentence":"크____ 작든 상자만 있으면 돼.","choices":["든","던"],"answer":"든","explain":"‘크든 작든’은 크기와 상관없이 어느 쪽이든 괜찮다는 말입니다. ‘-든’이 맞습니다.","tip":"‘-든’은 선택·양보, ‘-던’은 과거 회상의 관형사형입니다."},{"id":"dd-10","category":"든/던","scene":"메모","sentence":"어렸을 때 살____ 골목에 빵집이 아직 있다.","choices":["던","든"],"answer":"던","explain":"예전에 살고 있던 골목을 회상하므로 ‘살던’입니다.","tip":"‘그때 살고 있었던’으로 풀어지면 ‘던’입니다."},{"id":"dd-11","category":"든/던","scene":"메일","sentence":"알____ 모르든 공지는 읽어 두세요.","choices":["든","던"],"answer":"든","explain":"알거나 모르거나 어느 쪽이든 읽으라는 양보이므로 ‘알든’입니다.","tip":"‘상관없이’가 들어가면 ‘든’입니다."},{"id":"dd-12","category":"든/던","scene":"댓글","sentence":"학생 때 자주 듣____ 라디오가 다시 생겼대.","choices":["던","든"],"answer":"던","explain":"학생 때 듣곤 하던 라디오를 회상하므로 ‘듣던’입니다.","tip":"습관처럼 이어지던 과거는 ‘-던’입니다."},{"id":"eo-01","category":"어떻게/어떡해","scene":"메신저","sentence":"지갑을 택시에 두고 내렸어. 나 ____?","choices":["어떡해","어떻게","어떻해"],"answer":"어떡해","explain":"‘어떡해’는 ‘어떻게 해’가 줄어든 말로, 그 자체가 문장을 끝내는 서술어입니다.","tip":"뒤에 다른 동사가 없고 문장이 끝나면 ‘어떡해’. ‘어떻해’는 없는 표기입니다."},{"id":"eo-02","category":"어떻게/어떡해","scene":"메일","sentence":"이 오류는 ____ 고치는 게 나을까요?","choices":["어떻게","어떡해","어떡게"],"answer":"어떻게","explain":"뒤에 ‘고치다’가 이어지므로 부사 ‘어떻게’입니다. ‘어떡해’는 다른 서술어를 수식하지 못합니다.","tip":"빈칸 뒤에 동사·형용사가 더 있으면 ‘어떻게’입니다."},{"id":"eo-03","category":"어떻게/어떡해","scene":"메신저","sentence":"오랜만이다. ____ 지냈어?","choices":["어떻게","어떡해","어떻해"],"answer":"어떻게","explain":"‘지냈어’를 꾸미는 부사이므로 ‘어떻게’입니다.","tip":"‘어떡해 지냈어’는 서술어가 두 번 겹쳐 틀립니다."},{"id":"eo-04","category":"어떻게/어떡해","scene":"메신저","sentence":"발표 파일이 안 열려. ____!","choices":["어떡해","어떻게","어떡게"],"answer":"어떡해","explain":"감탄으로 문장이 끝나므로 ‘어떻게 해’의 준말 ‘어떡해’입니다. ‘어떡게’는 없습니다.","tip":"‘어떻게 해!’로 풀어 쓰면 ‘어떡해’가 맞는지 확인할 수 있습니다."},{"id":"eo-05","category":"어떻게/어떡해","scene":"메일","sentence":"비밀번호는 ____ 바꾸면 되나요?","choices":["어떻게","어떡해"],"answer":"어떻게","explain":"‘바꾸면’이라는 서술어가 뒤에 있으므로 부사 ‘어떻게’를 씁니다.","tip":"방법을 묻는 ‘어떻게 + 동사’는 붙여 줄이지 않습니다."},{"id":"eo-06","category":"어떻게/어떡해","scene":"메신저","sentence":"팀장님께 ____ 말씀드리지? 입이 안 떨어져.","choices":["어떻게","어떡해","어떻해"],"answer":"어떻게","explain":"뒤에 ‘말씀드리다’가 있으므로 ‘어떻게’입니다. 여기의 ‘께’는 ‘팀장님께’처럼 높임의 조사이고, 어미가 아닙니다.","tip":"‘어떡해 말씀드리다’처럼 서술어를 겹치지 않습니다."},{"id":"sai-01","category":"사이시옷","scene":"메신저","sentence":"주말부터 ____가 쏟아졌어.","choices":["장맛비","장마비"],"answer":"장맛비","explain":"‘장마’와 ‘비’는 모두 고유어이고, 뒤의 ‘비’가 된소리로 납니다. 그래서 사이시옷을 받쳐 ‘장맛비’로 적습니다.","tip":"한글 맞춤법 제30항. [장마삐]처럼 된소리가 나면 사이시옷입니다."},{"id":"sai-02","category":"사이시옷","scene":"메모","sentence":"창가로 오니 ____이 따뜻하다.","choices":["햇살","해살"],"answer":"햇살","explain":"‘해’와 ‘살’이 만나 [해쌀]로 된소리 나므로 ‘햇살’입니다.","tip":"햇빛, 햇살, 햇볕은 모두 사이시옷이 있습니다."},{"id":"sai-03","category":"사이시옷","scene":"댓글","sentence":"골목의 ____이 노랗게 물들었다.","choices":["나뭇잎","나무잎"],"answer":"나뭇잎","explain":"‘나무’와 ‘잎’ 사이에 [ㄴㄴ] 소리가 덧나 [나문닙]으로 납니다. 모음 앞에서 ㄴㄴ이 덧나면 사이시옷을 적습니다.","tip":"나뭇잎, 나뭇가지, 깻잎이 같은 유형입니다."},{"id":"sai-04","category":"사이시옷","scene":"메신저","sentence":"퇴근하고 ____에서 보자.","choices":["횟집","회집"],"answer":"횟집","explain":"‘회’와 ‘집’이 만나 뒤가 된소리로 나므로 ‘횟집’입니다. 앞말이 고유어나 고유어+한자어 조건에 맞습니다.","tip":"[회찝]으로 읽히면 ‘횟집’입니다."},{"id":"sai-05","category":"사이시옷","scene":"메일","sentence":"첨부 파일 ____를 다시 세어 주세요.","choices":["개수","갯수"],"answer":"개수","explain":"‘개수(個數)’는 한자어와 한자어의 결합이라 사이시옷을 적지 않습니다. 소리가 된소리여도 마찬가지입니다.","tip":"한자어끼리는 원칙적으로 사이시옷이 없습니다. ‘갯수’는 틀린 표기입니다."},{"id":"sai-06","category":"사이시옷","scene":"메일","sentence":"같은 실험을 반복한 ____를 적어 주세요.","choices":["횟수","회수"],"answer":"횟수","explain":"한자어끼리는 사이시옷을 적지 않는 것이 원칙이지만, ‘횟수’는 예외로 사이시옷을 적습니다.","tip":"예외 여섯 가지는 곳간, 셋방, 숫자, 찻간, 툇간, 횟수입니다. 한글 맞춤법 제30항."},{"id":"sai-07","category":"사이시옷","scene":"공지","sentence":"자리에는 ____만 올려 두세요.","choices":["찻잔","차잔"],"answer":"찻잔","explain":"‘차’와 ‘잔’이 만나 된소리로 나므로 ‘찻잔’입니다. 한글 맞춤법 제30항의 용례입니다.","tip":"찻잔, 찻종은 사이시옷이 있고, 한자어인 ‘개수’와는 다릅니다."},{"id":"sai-08","category":"사이시옷","scene":"메신저","sentence":"찬물만 마셔도 ____이 시려.","choices":["잇몸","이몸"],"answer":"잇몸","explain":"‘이’와 ‘몸’ 사이, ㅁ 앞에서 ㄴ 소리가 덧나 [인몸]으로 납니다. 그래서 ‘잇몸’입니다.","tip":"뒷말이 ㄴ·ㅁ으로 시작하고 ㄴ이 덧나면 사이시옷입니다. 아랫니, 냇물도 같습니다."},{"id":"sai-09","category":"사이시옷","scene":"메일","sentence":"계산서는 ____ 둘째 자리에서 반올림합니다.","choices":["소수점","소숫점"],"answer":"소수점","explain":"‘소수(小數)’와 ‘점(點)’은 둘 다 한자어입니다. 한자어끼리는 사이시옷을 적지 않아 ‘소수점’이 맞습니다.","tip":"된소리로 들려도 한자어+한자어면 사이시옷이 없습니다. ‘꼭짓점’과 비교하세요."},{"id":"sai-10","category":"사이시옷","scene":"메일","sentence":"도형에서 ____만 표시하세요.","choices":["꼭짓점","꼭지점"],"answer":"꼭짓점","explain":"‘꼭지’는 고유어, ‘점’은 한자어이고 뒤가 된소리로 납니다. 그래서 ‘꼭짓점’입니다.","tip":"전체가 한자어인 ‘소수점’은 사이시옷이 없고, ‘꼭짓점’은 있습니다."},{"id":"sai-11","category":"사이시옷","scene":"메일","sentence":"이번 달 ____만 표에 남기면 됩니다.","choices":["최댓값","최대값"],"answer":"최댓값","explain":"‘최대’는 한자어, ‘값’은 고유어이고 뒤가 된소리로 납니다. ‘최댓값’ ‘최솟값’ 모두 사이시옷이 있습니다.","tip":"한자어+고유어 ‘값’은 ‘최댓값, 최솟값’처럼 사이시옷을 받칩니다."},{"id":"sai-12","category":"사이시옷","scene":"메모","sentence":"곡마다 ____을 다시 다듬자.","choices":["노랫말","노래말"],"answer":"노랫말","explain":"‘노래’와 ‘말’ 사이에 ㄴ이 덧나 [노랜말]로 납니다. 그래서 ‘노랫말’입니다.","tip":"‘머리말, 인사말’은 소리 변화가 없어 사이시옷이 없습니다. ‘노랫말, 존댓말’은 있습니다."},{"id":"sai-13","category":"사이시옷","scene":"메일","sentence":"책 ____에 감사 인사를 넣었습니다.","choices":["머리말","머릿말"],"answer":"머리말","explain":"‘머리말’은 [머리말]로 발음이 변하지 않습니다. 사잇소리 현상이 없으면 사이시옷을 적지 않습니다.","tip":"같은 ‘말’이라도 ‘노랫말’만 사이시옷이 있습니다."},{"id":"sai-14","category":"사이시옷","scene":"메신저","sentence":"올해 휴가는 ____에서 보낼까 해.","choices":["바닷가","바다가"],"answer":"바닷가","explain":"‘바다’와 ‘가’가 만나 된소리로 나므로 ‘바닷가’입니다. 한글 맞춤법의 용례입니다.","tip":"앞말에 받침이 없는 ‘바닷가, 시냇가’는 사이시옷이 있고, 받침이 있는 ‘강가, 길가’는 없습니다."},{"id":"sai-15","category":"사이시옷","scene":"메신저","sentence":"짐은 ____에 올려 뒀어.","choices":["위층","윗층"],"answer":"위층","explain":"‘층’은 이미 거센소리라 사이시옷으로 나타낼 발음 변화가 없습니다. ‘위층’이 맞습니다.","tip":"‘위층, 아래층, 위쪽’은 사이시옷이 없습니다. ‘윗사람’은 된소리가 나서 있습니다."},{"id":"sai-16","category":"사이시옷","scene":"메모","sentence":"카드 첫 줄에 ____이라고 적었다.","choices":["해님","햇님"],"answer":"해님","explain":"‘님’은 명사가 아니라 접미사입니다. 사이시옷은 명사와 명사 사이에만 적으므로 ‘해님’입니다.","tip":"‘선생님, 해님’처럼 접미사 ‘-님’ 앞에는 사이시옷이 없습니다."},{"id":"sai-17","category":"사이시옷","scene":"메일","sentence":"로그인 ____가 일치하지 않습니다.","choices":["숫자","수자"],"answer":"숫자","explain":"‘숫자’는 한자어지만 사이시옷을 적는 예외입니다.","tip":"예외는 곳간, 셋방, 숫자, 찻간, 툇간, 횟수 여섯 개뿐입니다."},{"id":"sai-18","category":"사이시옷","scene":"메신저","sentence":"아침부터 ____이 탁해졌어.","choices":["수돗물","수도물"],"answer":"수돗물","explain":"‘수도’와 ‘물’ 사이에 ㄴ이 덧나 [수돈물]로 납니다. 그래서 ‘수돗물’입니다.","tip":"뒷말이 ㄴ·ㅁ이고 ㄴ이 덧나면 사이시옷입니다. 양칫물, 빗물도 떠올려 보세요."},{"id":"sai-19","category":"사이시옷","scene":"메모","sentence":"마을 개울 ____를 건넜다.","choices":["나무다리","나뭇다리"],"answer":"나무다리","explain":"‘나무다리’는 [나무다리]로 소리가 변하지 않습니다. 된소리나 ㄴ 첨가가 없으면 사이시옷을 적지 않습니다.","tip":"‘나뭇잎’은 소리가 덧나고 ‘나무다리’는 그대로입니다."},{"id":"sai-20","category":"사이시옷","scene":"메신저","sentence":"____에 웃으면서 이야기하자.","choices":["훗날","후날"],"answer":"훗날","explain":"‘후’와 ‘날’ 사이, ㄴ 앞에서 ㄴ 소리가 덧나므로 ‘훗날’입니다. 한글 맞춤법 제30항의 용례입니다.","tip":"훗날, 제삿날, 곗날은 모두 사이시옷이 있습니다."},{"id":"sp-01","category":"띄어쓰기","scene":"메일","sentence":"검토는 내일까지 ____ 있을 것 같습니다.","choices":["마칠 수","마칠수"],"answer":"마칠 수","explain":"‘수’는 의존 명사입니다. 관형어 뒤에서는 ‘마칠 수 있다’처럼 띄어 씁니다.","tip":"‘-ㄹ 수 있다’, ‘-ㄹ 수 없다’의 ‘수’ 앞은 항상 띄웁니다."},{"id":"sp-02","category":"띄어쓰기","scene":"메신저","sentence":"오늘은 더 ____ 없어. 마감이야.","choices":["기다릴 수","기다릴수"],"answer":"기다릴 수","explain":"가능·불가능의 ‘수’는 의존 명사라 ‘기다릴 수 없어’처럼 앞을 띄어 씁니다.","tip":"‘수’를 명사 ‘방법, 가능성’으로 바꾸어 보면 앞이 띄어지는 느낌이 납니다."},{"id":"sp-03","category":"띄어쓰기","scene":"메신저","sentence":"우리 팀에서 ____ 초안을 빨리 쓰는 사람은 없어.","choices":["너만큼","너 만큼"],"answer":"너만큼","explain":"체언 뒤에 붙는 ‘만큼’은 조사입니다. 조사는 앞말에 붙여 씁니다.","tip":"‘너만큼, 어제만큼’은 붙이고, ‘먹을 만큼, 아는 만큼’은 띄웁니다."},{"id":"sp-04","category":"띄어쓰기","scene":"메신저","sentence":"배고프면 ____ 가져가. 남은 건 내가 둘게.","choices":["먹을 만큼","먹을만큼"],"answer":"먹을 만큼","explain":"관형어 뒤의 ‘만큼’은 의존 명사라 띄어 씁니다.","tip":"앞에 ‘-ㄹ/은/는’이 보이면 ‘만큼’은 띄우는 쪽입니다."},{"id":"sp-05","category":"띄어쓰기","scene":"메일","sentence":"내일 일정은 ____ 진행하겠습니다.","choices":["계획대로","계획 대로"],"answer":"계획대로","explain":"명사 바로 뒤의 ‘대로’는 조사입니다. ‘계획대로’처럼 붙여 씁니다.","tip":"조사가 되면 붙이고, ‘시키는 대로’처럼 관형어 뒤면 의존 명사라 띄웁니다."},{"id":"sp-06","category":"띄어쓰기","scene":"메일","sentence":"보고서는 ____ 고쳤습니다.","choices":["시키는 대로","시키는대로"],"answer":"시키는 대로","explain":"‘-는 대로’의 ‘대로’는 의존 명사입니다. 관형어와 띄어 씁니다.","tip":"‘시키는 대로, 본 대로, 아는 대로’는 띄어 씁니다."},{"id":"sp-07","category":"띄어쓰기","scene":"메신저","sentence":"냉장고에 남은 건 ____이야.","choices":["커피뿐","커피 뿐"],"answer":"커피뿐","explain":"명사 뒤의 ‘뿐’은 ‘오직’의 뜻을 더하는 조사입니다. ‘커피뿐’처럼 붙여 씁니다.","tip":"‘나뿐, 그것뿐’은 붙이고, ‘먹었을 뿐’은 띄웁니다."},{"id":"sp-08","category":"띄어쓰기","scene":"메신저","sentence":"나는 듣기만 ____ 결정은 안 했어.","choices":["했을 뿐","했을뿐"],"answer":"했을 뿐","explain":"‘-을 뿐’의 ‘뿐’은 의존 명사입니다. 관형어 뒤에서 띄어 씁니다.","tip":"‘었을 뿐’ ‘을 뿐’의 앞은 띄우고, 그 뒤의 ‘만’은 ‘뿐만’처럼 붙입니다."},{"id":"sp-09","category":"띄어쓰기","scene":"메신저","sentence":"우리가 ____ 벌써 십 년이다.","choices":["만난 지","만난지"],"answer":"만난 지","explain":"시간이 얼마나 지났다는 ‘지’는 의존 명사입니다. ‘만난 지 십 년’처럼 띄어 씁니다.","tip":"‘얼마나 시간이 흘렀나’는 띄우는 ‘지’, ‘언제·어디서’가 들어가면 붙이는 ‘-는지’입니다."},{"id":"sp-10","category":"띄어쓰기","scene":"메신저","sentence":"어디서 ____ 문자로 알려 줘.","choices":["만났는지","만난 지"],"answer":"만났는지","explain":"간접 의문의 어미 ‘-는지’는 붙여 씁니다. ‘어디서 만났는지’가 맞습니다.","tip":"의문사가 있으면 붙여 쓰는 ‘-는지’. 경과 시간이면 띄어 쓰는 ‘지’."},{"id":"sp-11","category":"띄어쓰기","scene":"메신저","sentence":"____ 로비에서 보자.","choices":["세 시쯤","세 시 쯤"],"answer":"세 시쯤","explain":"‘쯤’은 접미사입니다. ‘세 시쯤, 삼십 분쯤’처럼 앞말에 붙여 씁니다.","tip":"접미사 ‘쯤’은 붙이고, 명사 ‘즈음’은 띄웁니다."},{"id":"sp-12","category":"띄어쓰기","scene":"메신저","sentence":"____에 다시 통화하자.","choices":["저녁 즈음","저녁즈음"],"answer":"저녁 즈음","explain":"‘즈음’은 ‘무렵’이라는 뜻의 명사입니다. ‘저녁 즈음’처럼 띄어 씁니다.","tip":"‘쯤’은 접미사라 붙이고, ‘즈음’은 명사라 띄웁니다."},{"id":"sp-13","category":"띄어쓰기","scene":"공지","sentence":"엘리베이터는 ____입니다. 계단을 이용해 주세요.","choices":["공사 중","공사중"],"answer":"공사 중","explain":"‘중’이 ‘한창 진행되는 동안’이라는 의존 명사이면 띄어 씁니다.","tip":"‘회의 중, 공사 중, 검토 중’은 띄어 씁니다."},{"id":"sp-14","category":"띄어쓰기","scene":"메신저","sentence":"왼쪽에서 ____ 출구로 나와.","choices":["세 번째","세번째"],"answer":"세 번째","explain":"‘번째’는 차례를 나타내는 의존 명사라 띄어 씁니다.","tip":"‘첫째, 둘째’는 한 단어이고 ‘첫 번째, 두 번째, 세 번째’는 띄어 씁니다."},{"id":"sp-15","category":"띄어쓰기","scene":"메모","sentence":"이 알림은 ____만 울리게 설정해 줘.","choices":["하루 한 번","하루 한번"],"answer":"하루 한 번","explain":"횟수가 하나라는 뜻이므로 ‘한 번’으로 띄어 씁니다. ‘두 번’으로 바꾸어도 횟수라는 뜻이 유지됩니다.","tip":"횟수면 ‘한 번’, 시험 삼아·일단이면 한 단어 ‘한번’입니다."},{"id":"sp-16","category":"띄어쓰기","scene":"메신저","sentence":"화면이 멈추면 다시 ____ 켜 봐.","choices":["한번","한 번"],"answer":"한번","explain":"여기서는 ‘일단 한 차례, 시험 삼아’라는 부사 ‘한번’입니다. ‘두 번’으로 바꾸면 뜻이 달라집니다.","tip":"국립국어원의 구분: ‘다시 한번’은 붙여 쓰고, 횟수의 ‘한 번’은 띄어 씁니다."},{"id":"sp-17","category":"띄어쓰기","scene":"메일","sentence":"이 일정은 ____ 불가능합니다.","choices":["사실상","사실 상"],"answer":"사실상","explain":"‘-상(上)’이 ‘그 입장에서, 그 점에서’라는 접미사이면 붙여 씁니다.","tip":"‘사실상, 역사상, 법률상, 제도상’은 한 단어입니다."},{"id":"sp-18","category":"띄어쓰기","scene":"메신저","sentence":"남은 표가 ____.","choices":["하나밖에 없어","하나 밖에 없어"],"answer":"하나밖에 없어","explain":"‘오직 그것만’이라는 ‘밖에’는 조사입니다. ‘하나밖에’처럼 붙여 씁니다.","tip":"바깥이라는 장소의 ‘밖’만 띄우고, ‘밖에 없다’의 ‘밖에’는 붙입니다."},{"id":"sp-19","category":"띄어쓰기","scene":"메신저","sentence":"택배는 ____ 둬 줘.","choices":["문 밖에","문밖에"],"answer":"문 밖에","explain":"장소의 ‘밖’은 명사이므로 ‘문 밖에’처럼 띄어 씁니다.","tip":"‘집 밖에, 문 밖에’는 띄우고, ‘하나밖에 없다’는 붙입니다."},{"id":"sp-20","category":"띄어쓰기","scene":"메신저","sentence":"주말에는 ____가 마땅치 않아.","choices":["갈 데","갈데"],"answer":"갈 데","explain":"장소나 경우를 나타내는 ‘데’는 의존 명사입니다. ‘갈 데’처럼 띄어 씁니다.","tip":"‘갈 데, 먹을 데, 있을 데’의 ‘데’ 앞은 띄웁니다."},{"id":"sp-21","category":"띄어쓰기","scene":"메신저","sentence":"몰라도 ____까지 할 필요는 없어.","choices":["아는 척","아는척"],"answer":"아는 척","explain":"‘체하는 태도’를 나타내는 ‘척’은 의존 명사입니다. ‘아는 척’처럼 띄어 씁니다.","tip":"‘모르는 척, 잔 척, 들은 척’은 모두 띄어 씁니다."},{"id":"sp-22","category":"띄어쓰기","scene":"메일","sentence":"그분은 ____ 아니라 멘토이기도 합니다.","choices":["선배일 뿐만","선배일뿐만"],"answer":"선배일 뿐만","explain":"‘일’은 ‘이다’의 관형형이고, 그 뒤 ‘뿐’은 의존 명사라 띄어 씁니다. ‘만’은 조사로 ‘뿐’에 붙습니다.","tip":"‘학생일 뿐만 아니라’는 띄우고, 명사 뒤 조사인 ‘선배뿐만’은 붙입니다."},{"id":"sp-23","category":"띄어쓰기","scene":"메신저","sentence":"이번 주 일정은 ____.","choices":["안 돼요","안돼요"],"answer":"안 돼요","explain":"부정 부사 ‘안’은 뒤 동사와 띄어 씁니다. ‘돼요’는 ‘되어’의 준말입니다.","tip":"‘안 되다, 안 돼요, 못 하다’의 ‘안·못’은 부사라 띄어 씁니다."},{"id":"sp-24","category":"띄어쓰기","scene":"메신저","sentence":"양보를 모르는 건 ____ 태도야.","choices":["못된","못 된"],"answer":"못된","explain":"성질이 나쁘다는 ‘못되다’는 한 단어입니다. ‘못된 태도’로 붙여 씁니다.","tip":"나쁘다는 뜻이면 붙이고, ‘되지 못했다’로 바꾸어지면 띄어 쓴 ‘못 되다’입니다."},{"id":"sp-25","category":"띄어쓰기","scene":"메신저","sentence":"오디션에서 주인공은 ____. 조연으로 배정됐대.","choices":["못 됐어","못됐어"],"answer":"못 됐어","explain":"주인공이 되지 못했다는 뜻이므로 부사 ‘못’과 동사 ‘되다’를 띄어 씁니다.","tip":"붙여 쓴 ‘못되다’는 ‘심술궂다’는 다른 단어입니다."},{"id":"ba-01","category":"바라다","scene":"메일","sentence":"검토 부탁드리며, 긍정적인 회신을 ____.","choices":["바랍니다","바래요"],"answer":"바랍니다","explain":"소원을 말하는 동사는 ‘바라다’입니다. ‘바랍니다’가 맞고 ‘바래요’는 틀린 활용입니다.","tip":"어간이 ‘바라-’라서 ‘바라, 바라요, 바랍니다’. ‘바래다’는 색이 바래거나 배웅할 때 씁니다."},{"id":"ba-02","category":"바라다","scene":"메신저","sentence":"몸조리 잘하길 ____.","choices":["바라요","바래요"],"answer":"바라요","explain":"‘바라다’의 어간 ‘바라-’에 ‘-아’가 붙으면 ‘바라’가 되고, 높임은 ‘바라요’입니다.","tip":"‘자라요’처럼 ‘ㅏ’가 유지됩니다. ‘바래요’로 바뀌지 않습니다."},{"id":"ba-03","category":"바라다","scene":"메신저","sentence":"이번엔 꼭 붙기를 ____.","choices":["바라","바래"],"answer":"바라","explain":"‘붙기를 바라’가 맞습니다. ‘바래’는 ‘바라다’의 활용이 아닙니다.","tip":"한글 맞춤법 제34항. ‘ㅏ’로 끝난 어간에 ‘-아’가 붙으면 ‘바라’로 줄어듭니다."},{"id":"ba-04","category":"바라다","scene":"메모","sentence":"창가에 두었더니 포스터 색이 ____.","choices":["바랬다","바랐다"],"answer":"바랬다","explain":"볕을 받아 색이 변하는 동사는 ‘바래다’입니다. 과거는 ‘바랬다’가 맞습니다.","tip":"소원은 ‘바랐다’, 빛바램은 ‘바랬다’입니다. 뜻이 다르면 표기도 다릅니다."},{"id":"ba-05","category":"바라다","scene":"메신저","sentence":"막차니까 역까지 ____ 줄게.","choices":["바래다","바라다"],"answer":"바래다","explain":"가는 사람을 배웅하는 말은 ‘바래다’입니다. ‘바라다’는 소원을 말할 때 씁니다.","tip":"‘바래다주다’의 기본형은 ‘바래다’입니다."},{"id":"ba-06","category":"바라다","scene":"메일","sentence":"합격을 ____ 마음으로 기다립니다.","choices":["바라는","바래는"],"answer":"바라는","explain":"원하는 마음을 나타내는 관형형은 ‘바라는’입니다.","tip":"‘바라는 마음, 바라건대’는 ‘바라다’입니다."},{"id":"ma-01","category":"맞히다/맞추다","scene":"메신저","sentence":"이번 퀴즈 정답은 다 ____.","choices":["맞혔어","맞췄어"],"answer":"맞혔어","explain":"정답을 알아맞히는 것은 ‘맞히다’입니다. ‘맞추다’는 조정하거나 서로 비교할 때 씁니다.","tip":"표적·정답·수수께끼는 ‘맞히다’. 시간·옷·의견은 ‘맞추다’."},{"id":"ma-02","category":"맞히다/맞추다","scene":"메일","sentence":"인터뷰 시각을 오후 2시로 ____.","choices":["맞췄습니다","맞혔습니다"],"answer":"맞췄습니다","explain":"시각을 일정에 맞게 조정하는 것은 ‘맞추다’입니다.","tip":"‘시계를 맞추다, 일정을 맞추다’는 조정입니다. 숫자를 알아맞히면 ‘맞히다’입니다."},{"id":"ma-03","category":"맞히다/맞추다","scene":"공지","sentence":"보너스 숫자를 ____ 분은 쪽지로 알려 주세요.","choices":["맞힌","맞춘"],"answer":"맞힌","explain":"숫자를 적중시킨 것이므로 ‘맞힌’입니다.","tip":"‘과녁을 맞히다, 정답을 맞히다’의 ‘히’를 기억하세요."},{"id":"ma-04","category":"맞히다/맞추다","scene":"메신저","sentence":"서로 보폭을 ____ 걷자.","choices":["맞춰","맞혀"],"answer":"맞춰","explain":"보폭을 서로 같게 조정하는 것은 ‘맞추다’입니다.","tip":"‘보조를 맞추다, 박자를 맞추다’는 ‘추’입니다."},{"id":"ma-05","category":"맞히다/맞추다","scene":"메모","sentence":"선수가 과녁 한가운데를 ____.","choices":["맞혔다","맞췄다"],"answer":"맞혔다","explain":"과녁에 적중시킨 것은 ‘맞히다’입니다.","tip":"화살·총·정답처럼 맞혀 내는 대상은 ‘히’입니다."},{"id":"ma-06","category":"맞히다/맞추다","scene":"메신저","sentence":"채점 전에 옆 사람과 답을 ____ 봤어요.","choices":["맞춰","맞혀"],"answer":"맞춰","explain":"답을 서로 비교해 본 것이므로 ‘맞추다’입니다. 맞혀 본 것이 아닙니다.","tip":"국립국어원 용례도 ‘친구와 답을 맞춰 보았다’입니다."},{"id":"du-01","category":"두음법칙","scene":"메일","sentence":"지난주 ____을 주간 보고에 넣겠습니다.","choices":["시청률","시청율"],"answer":"시청률","explain":"‘청’은 ㄴ이 아닌 받침입니다. ㄴ 이외의 받침 뒤에서는 ‘률’로 적습니다.","tip":"모음이나 ㄴ 받침 뒤는 ‘율’, 그 외 받침 뒤는 ‘률’입니다."},{"id":"du-02","category":"두음법칙","scene":"메일","sentence":"원-달러 ____이 다시 올랐습니다.","choices":["환율","환률"],"answer":"환율","explain":"‘환’은 ㄴ 받침입니다. ㄴ 받침 뒤의 ‘률’은 ‘율’로 적습니다.","tip":"‘할인율, 환율, 백분율’처럼 ㄴ 받침 뒤는 ‘율’입니다."},{"id":"du-03","category":"두음법칙","scene":"메일","sentence":"우리 제품 ____이 업계 2위입니다.","choices":["점유율","점유률"],"answer":"점유율","explain":"‘유’는 모음으로 끝납니다. 모음 뒤에서는 ‘율’로 적습니다.","tip":"‘비율, 점유율, 실패율, 효율’은 모음 뒤라 ‘율’입니다."},{"id":"du-04","category":"두음법칙","scene":"메신저","sentence":"재택과 출근의 ____을 다시 계산해 봐.","choices":["비율","비률"],"answer":"비율","explain":"‘비’는 모음으로 끝나므로 ‘비율’입니다.","tip":"단어 첫머리도 ‘율’이고, 모음 뒤도 ‘율’입니다."},{"id":"du-05","category":"두음법칙","scene":"메일","sentence":"해당 조항은 이 ____에 있습니다.","choices":["법률","법율"],"answer":"법률","explain":"‘법’은 ㅂ 받침입니다. ㄴ이 아닌 받침 뒤이므로 ‘법률’입니다.","tip":"‘법률, 합격률, 경쟁률, 취업률’은 받침 뒤의 ‘률’입니다."},{"id":"du-06","category":"두음법칙","scene":"메일","sentence":"시제품 ____이 지난달보다 낮아졌습니다.","choices":["실패율","실패률"],"answer":"실패율","explain":"‘패’는 모음으로 끝나므로 ‘실패율’입니다.","tip":"‘ㄹ’ 받침이 없다고 모두 ‘률’은 아닙니다. 모음 뒤는 ‘율’입니다."},{"id":"du-07","category":"두음법칙","scene":"메모","sentence":"골목에 ____이 쌓이기 시작했다.","choices":["낙엽","락엽"],"answer":"낙엽","explain":"단어 첫머리의 ‘락’은 두음 법칙에 따라 ‘낙’으로 적습니다.","tip":"첫머리는 ‘낙엽, 낙제, 낙관’. 단어 가운데의 ‘오락, 쾌락’은 ‘락’을 유지합니다."},{"id":"du-08","category":"두음법칙","scene":"메신저","sentence":"주말 ____으로는 보드게임이 최고야.","choices":["오락","오낙"],"answer":"오락","explain":"‘오락’은 단어 첫머리가 아니라 모음 뒤에 온 ‘락’입니다. ‘오낙’으로 적지 않습니다.","tip":"첫소리만 ‘낙’이 되고, ‘오락·쾌락·타락’은 ‘락’입니다."},{"id":"em-01","category":"어미","scene":"메신저","sentence":"내일 오전에 파일 ____.","choices":["보낼게요","보낼께요"],"answer":"보낼게요","explain":"의지나 약속을 나타내는 어미는 ‘-ㄹ게요’입니다. ‘께’는 높임의 조사일 뿐 이 어미가 아닙니다.","tip":"‘할게, 갈게, 먹을게요’는 모두 ‘게’입니다. ‘선생님께’의 ‘께’와 섞지 마세요."},{"id":"em-02","category":"어미","scene":"메신저","sentence":"자리 먼저 ____.","choices":["맡아둘게","맡아둘께"],"answer":"맡아둘게","explain":"약속의 어미는 ‘-ㄹ게’입니다. ‘맡아 둘게’처럼 보조 용언을 띄어 쓰는 것도 허용되지만, ‘께’로는 적지 않습니다.","tip":"띄어쓰기는 ‘맡아 둘게’와 ‘맡아둘게’가 모두 가능하고, ‘께’만은 틀립니다."},{"id":"em-03","category":"어미","scene":"메일","sentence":"확인하는 대로 회신 ____.","choices":["드릴게요","드릴께요"],"answer":"드릴게요","explain":"공손한 약속도 ‘-ㄹ게요’입니다. ‘드릴께요’는 틀린 표기입니다.","tip":"요를 붙여도 받침은 ‘ㄱ’입니다. ‘ㄲ’이 되지 않습니다."},{"id":"em-04","category":"어미","scene":"메신저","sentence":"지금쯤이면 이미 ____.","choices":["도착했을걸","도착했을껄"],"answer":"도착했을걸","explain":"추측의 어미는 ‘-ㄹ걸’입니다. ‘껄’이라는 표기는 없습니다.","tip":"‘할걸, 올걸, 였을걸’의 받침은 ‘ㄹ’입니다."},{"id":"em-05","category":"어미","scene":"메신저","sentence":"배고플 때 ____ 그랬어.","choices":["먹을걸","먹을껄"],"answer":"먹을걸","explain":"지난 일을 후회하거나 추측할 때의 어미도 ‘-ㄹ걸’입니다.","tip":"‘걸’로 통일합니다. 거센소리 ‘껄’은 이 어미에 없습니다."},{"id":"em-06","category":"어미","scene":"메일","sentence":"발표는 제가 ____.","choices":["할 거예요","할 꺼예요","할거예요"],"answer":"할 거예요","explain":"‘거’는 ‘것’이 줄어든 의존 명사라 앞과 띄어 씁니다. ‘꺼’라는 표기도 없습니다.","tip":"‘할 것’을 줄여도 띄어쓰기와 ‘ㄱ’은 남습니다. ‘할 거예요’."},{"id":"bu-01","category":"부사","scene":"메일","sentence":"책상은 ____ 닦아 두고 퇴근하세요.","choices":["깨끗이","깨끗히"],"answer":"깨끗이","explain":"‘깨끗하다’의 부사는 ‘깨끗이’입니다. 한글 맞춤법 제25항의 용례이며 ‘깨끗히’는 틀립니다.","tip":"소리 나는 대로 ‘깨끗히’가 아니라, 어근 ‘깨끗’을 밝혀 ‘깨끗이’로 적습니다."},{"id":"bu-02","category":"부사","scene":"메신저","sentence":"누구 실수인지 ____ 따져 보자.","choices":["곰곰이","곰곰히"],"answer":"곰곰이","explain":"부사 ‘곰곰’에 ‘-이’가 붙은 말이 ‘곰곰이’입니다. 제25항에 ‘곰곰이, 더욱이, 일찍이’가 올라 있습니다.","tip":"‘곰곰히’는 없습니다. ‘이’로 끝내는 부사로 기억하세요."},{"id":"bu-03","category":"부사","scene":"메일","sentence":"제출 기한은 ____ 지켜 주세요.","choices":["반드시","반듯이"],"answer":"반드시","explain":"‘틀림없이 꼭’은 ‘반드시’입니다. ‘반듯이’는 ‘비뚤지 않고 바르게’라는 다른 말입니다.","tip":"당위·강조는 ‘반드시’, 자세가 바름은 ‘반듯이’입니다."},{"id":"bu-04","category":"부사","scene":"메신저","sentence":"기울어진 액자를 ____ 다시 걸었어요.","choices":["반듯이","반드시"],"answer":"반듯이","explain":"기울지 않게 바르게 걸었으므로 ‘반듯이’입니다. ‘반듯하다’의 부사입니다.","tip":"‘반듯하게 세워라’로 바꾸어지면 ‘반듯이’입니다."},{"id":"bu-05","category":"부사","scene":"댓글","sentence":"이렇게 조용한 서점은 ____ 처음이야.","choices":["일찍이","일찌기"],"answer":"일찍이","explain":"‘일찍’에 ‘-이’가 붙은 부사는 ‘일찍이’입니다. ‘일찌기’로 소리 나는 대로 적지 않습니다.","tip":"제25항은 원형을 밝혀 ‘일찍이’로 적습니다."},{"id":"bu-06","category":"부사","scene":"메신저","sentence":"우산까지 없어서 ____ 낭패다.","choices":["더욱이","더욱히"],"answer":"더욱이","explain":"‘더욱’에 ‘-이’가 붙은 말은 ‘더욱이’입니다. ‘더욱히’는 틀린 표기입니다.","tip":"‘더욱이, 곰곰이’처럼 부사 뒤에 붙는 것은 ‘-이’입니다."},{"id":"vo-01","category":"어휘","scene":"메신저","sentence":"휴가가 ____이나 남았지?","choices":["며칠","몇일","몇 일"],"answer":"며칠","explain":"날짜를 물을 때도, 기간을 말할 때도 ‘며칠’ 하나만 맞습니다. ‘몇 일’ ‘몇일’은 쓰지 않습니다.","tip":"한글 맞춤법 제27항. 어원이 분명하지 않아 소리대로 ‘며칠’로 적습니다. ‘몇 월 며칠’이 짝입니다."},{"id":"vo-02","category":"어휘","scene":"메신저","sentence":"달력에 오늘은 몇 월 ____이라고 적혀 있어.","choices":["며칠","몇 일"],"answer":"며칠","explain":"‘몇 월’은 띄어 쓰지만, 날짜의 ‘며칠’은 한 단어입니다.","tip":"‘월’만 띄고 ‘일’은 ‘며칠’ 안으로 들어갑니다."},{"id":"vo-03","category":"어휘","scene":"메일","sentence":"사회자 ____은 흐름을 살리는 일입니다.","choices":["역할","역활"],"answer":"역할","explain":"한자 ‘役割’의 ‘할’은 ‘나눌 할(割)’입니다. ‘역할’이 맞고 ‘역활’은 틀립니다.","tip":"‘할 일’의 ‘할’을 떠올리면 ‘역활’로 적지 않습니다."},{"id":"vo-04","category":"어휘","scene":"메신저","sentence":"저녁 먹고 ____는 내 차례야.","choices":["설거지","설것이"],"answer":"설거지","explain":"그릇을 씻는 일은 ‘설거지’입니다. ‘설것이’는 틀린 표기입니다.","tip":"‘것’이 아니라 ‘거지’입니다. 설거지, 설거지하다."},{"id":"vo-05","category":"어휘","scene":"메모","sentence":"아이가 눕자마자 ____ 잠들었다.","choices":["금세","금새"],"answer":"금세","explain":"‘바로 곧’이라는 부사는 ‘금세’입니다. ‘금시에’가 줄어든 말입니다.","tip":"‘금새’는 물건값을 뜻하는 다른 단어입니다. 시간은 언제나 ‘금세’."},{"id":"vo-06","category":"어휘","scene":"메모","sentence":"정류장에서 ____ 기다렸더니 버스가 왔다.","choices":["오랫동안","오랜동안"],"answer":"오랫동안","explain":"‘오래’와 ‘동안’이 만나 뒤가 된소리로 나므로 사이시옷을 넣어 ‘오랫동안’입니다.","tip":"‘오랜만’과 짝으로 기억하세요. 만남은 ‘오랜만’, 시간은 ‘오랫동안’."},{"id":"vo-07","category":"어휘","scene":"메신저","sentence":"____에 보는 얼굴이네.","choices":["오랜만","오랫만"],"answer":"오랜만","explain":"‘오랜만’은 ‘오래간만’이 줄어든 말이라 사이시옷이 없습니다.","tip":"‘만’은 ㄴ, ‘동안’은 ㅅ. ‘오랜만 / 오랫동안’."},{"id":"vo-08","category":"어휘","scene":"메신저","sentence":"너를 피하려고 ____ 다른 길로 돌았어.","choices":["일부러","일부로"],"answer":"일부러","explain":"의도적으로 했다는 부사는 ‘일부러’입니다. ‘일부로’는 ‘일부분을 가지고’라는 다른 말입니다.","tip":"일부러 그랬다면 ‘러’, 전체의 일부라면 ‘로’입니다."},{"id":"vo-09","category":"어휘","scene":"메일","sentence":"신입 사원 역량 ____ 프로그램을 엽니다.","choices":["계발","개발"],"answer":"계발","explain":"사람의 능력·소질·창의성을 북돋는 것은 ‘계발(啓發)’입니다.","tip":"사람은 ‘계발’, 기술·제품·땅은 ‘개발(開發)’입니다."},{"id":"vo-10","category":"어휘","scene":"메일","sentence":"사내 주문 앱을 새로 ____ 중입니다.","choices":["개발","계발"],"answer":"개발","explain":"프로그램이나 제품을 새로 만드는 것은 ‘개발’입니다.","tip":"앱, 기술, 신제품은 ‘개발’. 역량과 소질은 ‘계발’."},{"id":"vo-11","category":"어휘","scene":"메신저","sentence":"네가 고른 색과 내가 고른 색이 ____.","choices":["달라","틀려"],"answer":"달라","explain":"서로 같지 않다는 비교는 ‘다르다’입니다. ‘틀리다’는 옳지 않다는 뜻입니다.","tip":"두 대상을 나란히 놓으면 ‘다르다’. 답이 잘못이면 ‘틀리다’."},{"id":"vo-12","category":"어휘","scene":"메신저","sentence":"이 합계는 ____. 다시 더해 봐.","choices":["틀려","달라"],"answer":"틀려","explain":"계산이 옳지 않으므로 ‘틀리다’입니다. ‘다르다’로 바꾸면 비교가 되어 뜻이 달라집니다.","tip":"정답·계산·맞춤은 ‘틀리다’. 취향과 차이는 ‘다르다’."},{"id":"vo-13","category":"어휘","scene":"메신저","sentence":"____에서 물이 떨어진다.","choices":["천장","천정"],"answer":"천장","explain":"지붕의 안쪽, 반자의 겉면은 ‘천장(天障)’이 표준어입니다. 표준어 규정 제17항에서 ‘천정’은 이 뜻으로 쓰지 않습니다.","tip":"물이 새는 천장에는 ‘장’. ‘천정부지’처럼 굳은 말에만 ‘천정’이 남습니다."},{"id":"vo-14","category":"어휘","scene":"메신저","sentence":"그 변명은 정말 ____.","choices":["어이없어","어의없어"],"answer":"어이없어","explain":"어처구니가 없다는 말은 ‘어이없다’입니다. ‘어의’는 왕의 의원을 뜻하는 다른 말입니다.","tip":"‘어처구니’의 느낌을 ‘어이’로 적습니다."},{"id":"vo-15","category":"어휘","scene":"메신저","sentence":"____ 일이네. 문이 안에서 잠겼어.","choices":["희한한","희안한"],"answer":"희한한","explain":"드물고 기이하다는 말은 ‘희한하다(稀罕)’입니다. ‘희안하다’는 틀린 표기입니다.","tip":"‘드물 희, 드물 한’이라 둘 다 비슷한 뜻입니다. ‘안’이 아닙니다."},{"id":"vo-16","category":"어휘","scene":"메모","sentence":"명절이면 ____ 그 시장에 들렀다.","choices":["으레","의레"],"answer":"으레","explain":"‘으레’는 ‘의례히, 언제나 그렇게’라는 부사입니다. ‘의레’로 적지 않습니다.","tip":"첫소리가 ‘으’입니다. ‘의레’는 없습니다."},{"id":"vo-17","category":"어휘","scene":"메신저","sentence":"____ 다시 할 일이니 지금 하자.","choices":["어차피","어짜피"],"answer":"어차피","explain":"‘어차피’가 표준 표기입니다. ‘어짜피’는 틀린 표기입니다.","tip":"가운데 음절은 된소리 ‘짜’가 아니라 ‘차’입니다."},{"id":"vo-18","category":"어휘","scene":"메신저","sentence":"____ 속이 너무 뜨거워.","choices":["베개","베게"],"answer":"베개","explain":"머리를 베는 물건은 ‘베개’입니다. ‘베게’로 적지 않습니다.","tip":"명사 ‘베개’와, 동사 ‘베다’의 활용을 섞지 마세요."},{"id":"vo-19","category":"어휘","scene":"메신저","sentence":"나는 원래 ____ 편이야.","choices":["게으른","게을른"],"answer":"게으른","explain":"기본형은 ‘게으르다’입니다. ‘게을르다’는 없는 말이라 ‘게을른’도 틀립니다.","tip":"‘게으르다, 게으른, 게을러’처럼 ‘으’가 남습니다."},{"id":"vo-20","category":"어휘","scene":"메모","sentence":"그 소식을 듣고 ____을 찌푸렸다.","choices":["눈살","눈쌀"],"answer":"눈살","explain":"눈 사이의 살은 ‘눈살’입니다. ‘쌀’은 곡식이라 ‘눈쌀’은 틀립니다.","tip":"‘살’을 찌푸리는 것입니다. 쌀알의 ‘쌀’이 아닙니다."},{"id":"vo-21","category":"어휘","scene":"메신저","sentence":"고무줄을 너무 ____ 끊어졌어.","choices":["늘여서","늘려서"],"answer":"늘여서","explain":"길이를 물리적으로 잡아당기는 것은 ‘늘이다’입니다. ‘늘여서’가 맞습니다.","tip":"고무줄·철사·주름은 ‘늘이다’. 수량·규모는 ‘늘리다’."},{"id":"vo-22","category":"어휘","scene":"메일","sentence":"모집 인원을 스무 명으로 ____.","choices":["늘렸다","늘였다"],"answer":"늘렸다","explain":"수량을 더 크게 하는 것은 ‘늘리다’입니다.","tip":"인원, 매출, 예산은 ‘늘리다’. 잡아당기면 ‘늘이다’."},{"id":"vo-23","category":"어휘","scene":"메일","sentence":"계약서는 등기로 ____.","choices":["부쳤습니다","붙였습니다"],"answer":"부쳤습니다","explain":"우편으로 보내는 것은 ‘부치다’입니다. ‘편지를 부치다, 등기를 부치다’.","tip":"보내거나 부쳐 먹을 때는 ‘부치다’. 붙여 붙일 때는 ‘붙이다’."},{"id":"vo-24","category":"어휘","scene":"메일","sentence":"표지에 이름 라벨을 ____.","choices":["붙였습니다","부쳤습니다"],"answer":"붙였습니다","explain":"붙어서 떨어지지 않게 하는 것은 ‘붙이다’입니다.","tip":"스티커, 우표, 이름표는 ‘붙이다’. 우체국에 맡기면 ‘부치다’."},{"id":"vo-25","category":"어휘","scene":"메일","sentence":"신규 입사자에게 정산 절차를 ____.","choices":["가르쳤습니다","가리켰습니다"],"answer":"가르쳤습니다","explain":"지식이나 방법을 알게 하는 것은 ‘가르치다’입니다.","tip":"‘가르치다’는 가르침, ‘가리키다’는 방향과 대상입니다."},{"id":"vo-26","category":"어휘","scene":"메신저","sentence":"약도에서 모임 장소를 ____.","choices":["가리켰어요","가르쳤어요"],"answer":"가리켰어요","explain":"손가락이나 표시로 대상을 집어 보이는 것은 ‘가리키다’입니다.","tip":"지도, 방향, 사람을 짚으면 ‘가리키다’."},{"id":"vo-27","category":"어휘","scene":"메신저","sentence":"강아지가 택배 기사만 보면 ____.","choices":["짖어요","지어요"],"answer":"짖어요","explain":"동물이 소리를 내는 것은 ‘짖다’입니다.","tip":"개는 ‘짖다’. 집·이름·표정·밥은 ‘짓다’."},{"id":"vo-28","category":"어휘","scene":"메신저","sentence":"동아리 이름을 새로 ____.","choices":["지었어요","짖었어요"],"answer":"지었어요","explain":"이름을 만드는 것은 ‘짓다’입니다. ‘짖다’는 동물의 울음입니다.","tip":"이름을 짓다, 집을 짓다, 표정을 짓다."},{"id":"vo-29","category":"어휘","scene":"메신저","sentence":"감기가 아직 ____ 않았대요.","choices":["낫지","낳지"],"answer":"낫지","explain":"병이 회복되는 것은 ‘낫다’입니다. ‘낳다’는 아이를 낳거나 알을 낳을 때 씁니다.","tip":"병과 비교의 ‘낫다’, 출산의 ‘낳다’."},{"id":"vo-30","category":"어휘","scene":"메모","sentence":"첫째를 ____ 바로 복직한 이야기다.","choices":["낳고","낫고"],"answer":"낳고","explain":"아이를 출산한 것은 ‘낳다’입니다.","tip":"‘낳고 기르다’의 ‘낳’에는 ㅎ이 있습니다."},{"id":"vo-31","category":"어휘","scene":"메일","sentence":"예상 못 한 일정 문제에 ____.","choices":["부딪혔다","부딪쳤다"],"answer":"부딪혔다","explain":"문제나 난관에 맞닥뜨리는 피동은 ‘부딪히다’입니다.","tip":"‘문제에 부딪히다’. 무릎이나 차를 직접 부딪으면 ‘부딪치다’."},{"id":"vo-32","category":"어휘","scene":"메신저","sentence":"아이가 무릎을 책상 모서리에 ____.","choices":["부딪쳤다","부딪혔다"],"answer":"부딪쳤다","explain":"무릎을 직접 부딪은 타동은 ‘부딪치다’입니다. 목적어 ‘무릎을’이 있으면 ‘부딪쳤다’입니다.","tip":"‘을/를’이 있으면 ‘부딪치다’, ‘문제에 맞닥뜨리다’는 ‘부딪히다’."},{"id":"vo-33","category":"어휘","scene":"메신저","sentence":"여행을 가려면 부모님 ____을 받아야 해.","choices":["승낙","승락"],"answer":"승낙","explain":"‘承諾’은 ‘승낙’에서만 본음 ‘낙’으로 적습니다. ‘승락’은 틀린 표기입니다.","tip":"한글 맞춤법 제52항. ‘허락, 수락, 쾌락’은 ‘락’이고 ‘승낙’만 ‘낙’입니다."},{"id":"vo-34","category":"어휘","scene":"메일","sentence":"사진 사용 ____을 받았습니다.","choices":["허락","허낙"],"answer":"허락","explain":"‘許諾’은 속음으로 나서 ‘허락’입니다. ‘허낙’으로 적지 않습니다.","tip":"‘승낙’만 예외적으로 ‘낙’이고, 허락·수락은 ‘락’입니다."},{"id":"vo-35","category":"어휘","scene":"메신저","sentence":"내일 오전에 ____.","choices":["봬요","뵈요"],"answer":"봬요","explain":"‘뵈어요’의 준말은 ‘봬요’입니다. ‘되어요→돼요’와 같은 규칙이고 ‘뵈요’는 틀립니다.","tip":"한글 맞춤법 제35항 붙임 2. ‘하여→해’처럼 ‘뵈어→봬’."},{"id":"vo-36","category":"어휘","scene":"메일","sentence":"행사 진행은 홍보팀에서 ____합니다.","choices":["담당","담담"],"answer":"담당","explain":"맡아서 처리하는 것은 ‘담당(擔當)’입니다. ‘담담하다’는 감정이 고요하다는 다른 말입니다.","tip":"업무는 ‘담당’, 표정과 마음은 ‘담담’."},{"id":"vo-37","category":"어휘","scene":"메모","sentence":"앨범 첫 장에 ____ 사진이 있다.","choices":["돌잔치","돐잔치"],"answer":"돌잔치","explain":"첫돌은 ‘돌’로 적습니다. 옛 표기 ‘돐’은 이제 쓰지 않습니다.","tip":"‘돌잔치, 돌상, 돌잡이’는 모두 ‘돌’입니다."},{"id":"lo-01","category":"외래어","scene":"메신저","sentence":"긴 말 대신 음성 ____를 보냈어요.","choices":["메시지","메세지"],"answer":"메시지","explain":"영어 message의 외래어 표기는 ‘메시지’입니다. ‘메세지’는 규범 표기가 아닙니다.","tip":"끝은 ‘지’입니다. ‘메세지’의 ‘ㅔ’는 일본어식 표기에 가깝습니다."},{"id":"lo-02","category":"외래어","scene":"메일","sentence":"이번 캠페인 ____ 초안입니다.","choices":["콘텐츠","컨텐츠"],"answer":"콘텐츠","explain":"영어 contents에 대응하는 규범 표기는 ‘콘텐츠’입니다.","tip":"표준국어대사전과 우리말샘 모두 규범 표기를 ‘콘텐츠’로 둡니다."},{"id":"lo-03","category":"외래어","scene":"공지","sentence":"모바일 ____ 업데이트를 안내합니다.","choices":["애플리케이션","어플리케이션"],"answer":"애플리케이션","explain":"영어 application의 외래어 표기는 ‘애플리케이션’입니다.","tip":"‘어플’은 줄임이고, ‘어플리케이션’은 규범 표기가 아닙니다."},{"id":"lo-04","category":"외래어","scene":"메신저","sentence":"간식으로 딸기 ____ 살까?","choices":["주스","쥬스"],"answer":"주스","explain":"juice에는 반모음 [j]가 없어 ‘주스’로 적습니다. ‘쥬스’는 틀린 표기입니다.","tip":"ㅈ·ㅊ 뒤에서 원래 발음에 [j]가 없으면 ‘ㅛ, ㅠ’를 쓰지 않습니다. ‘주스, 초콜릿’이 그 예입니다."},{"id":"lo-05","category":"외래어","scene":"메모","sentence":"서랍에 숨겨 둔 ____를 꺼냈다.","choices":["초콜릿","쵸콜릿"],"answer":"초콜릿","explain":"chocolate의 규범 표기는 ‘초콜릿’입니다. 원어에 반모음 [j]가 없어 ‘쵸’를 쓰지 않습니다.","tip":"국립국어원도 ‘초콜릿’만 인정합니다. ‘초코’로 줄여 불러도 표기는 ‘초콜릿’."},{"id":"lo-06","category":"외래어","scene":"메신저","sentence":"생일에 ____를 잘랐다.","choices":["케이크","케익"],"answer":"케이크","explain":"cake의 외래어 표기는 ‘케이크’입니다. ‘케익’은 틀린 표기입니다.","tip":"‘이’가 아니라 ‘에’이고, 받침 ‘ㅋ’이 있습니다. 케이크."},{"id":"an-09","category":"안/않","scene":"메신저","sentence":"회의는 아직 ____. 조금만 더 있어.","choices":["안 끝났어","않 끝났어"],"answer":"안 끝났어","explain":"짧은 부정은 부사 ‘안’을 띄어 씁니다. ‘않’은 ‘않다’의 어간이라 동사 앞에 바로 두지 않습니다.","tip":"‘안 끝나다’와 ‘끝나지 않다’는 되고, ‘않 끝나다’는 안 됩니다."},{"id":"an-10","category":"안/않","scene":"메일","sentence":"고객 문의에는 ____ 답장했습니다.","choices":["아직 안","아직 않"],"answer":"아직 안","explain":"‘아직 안 답장했습니다’의 ‘안’은 부사입니다. ‘않’으로 바꾸면 어미가 없는 ‘않다’가 됩니다.","tip":"동사 바로 앞의 짧은 부정은 ‘안’입니다."},{"id":"an-11","category":"안/않","scene":"메신저","sentence":"거절은 ____ 거야. 조건만 다시 보자.","choices":["하지 않을","하지 안을"],"answer":"하지 않을","explain":"‘-지’ 뒤의 부정은 ‘않다’입니다. ‘안을’은 ‘않다’의 활용이 아닙니다.","tip":"‘하지 않을 거야’가 맞고 ‘하지 안을 거야’는 틀립니다."},{"id":"an-12","category":"안/않","scene":"메모","sentence":"친구가 와도 나는 ____.","choices":["놀라지 않았어","놀라지 안았어"],"answer":"놀라지 않았어","explain":"과거 부정은 ‘-지 않았다’입니다. ‘안았어’는 부정 ‘않다’가 아닙니다.","tip":"‘않았다’의 어간은 ‘않-’입니다."},{"id":"ro-09","category":"로서/로써","scene":"메일","sentence":"선생님____ 드릴 말씀이 있습니다.","choices":["로서","로써"],"answer":"로서","explain":"선생님이라는 자격으로 하는 말이므로 ‘로서’입니다.","tip":"역할·신분이면 ‘로서’입니다."},{"id":"ro-10","category":"로서/로써","scene":"메일","sentence":"이 수치____ 결론을 내리겠습니다.","choices":["로써","로서"],"answer":"로써","explain":"수치는 결론을 내는 수단이므로 ‘로써’입니다.","tip":"‘수치를 이용해서’로 풀어지면 ‘로써’입니다."},{"id":"ro-11","category":"로서/로써","scene":"메신저","sentence":"신입____ 들어간 첫 회의였어.","choices":["로서","로써"],"answer":"로서","explain":"신입이라는 자격으로 들어갔으므로 ‘로서’입니다. 도구가 아닙니다.","tip":"‘신입 자격으로’가 되면 ‘로서’입니다."},{"id":"ro-12","category":"로서/로써","scene":"메신저","sentence":"침묵____는 풀리지 않는 오해야.","choices":["으로써","으로서"],"answer":"으로써","explain":"침묵을 수단으로 삼아도 풀리지 않는다는 뜻이므로 ‘으로써’입니다.","tip":"방법·수단이면 ‘로써’, 자격이면 ‘로서’입니다."},{"id":"wen-07","category":"웬/왠","scene":"메신저","sentence":"____ 소란이야, 복도가 너무 시끄러워.","choices":["웬","왠"],"answer":"웬","explain":"‘어찌 된 소란’이므로 ‘웬’입니다. ‘왠’은 ‘왠지’에만 씁니다.","tip":"‘무슨’으로 바꾸어지면 ‘웬’입니다."},{"id":"wen-08","category":"웬/왠","scene":"댓글","sentence":"____ 날씨에 소풍이라니.","choices":["웬","왠"],"answer":"웬","explain":"뜻밖의 날씨를 가리키는 ‘웬’입니다.","tip":"‘왠지’가 아니면 모두 ‘웬’입니다."},{"id":"wen-09","category":"웬/왠","scene":"메신저","sentence":"____하면 이번만 넘어가 줄게.","choices":["웬만하면","왠만하면"],"answer":"웬만하면","explain":"‘웬만하다’는 정도가 대체로 괜찮다는 말입니다. ‘왠만하면’은 틀린 표기입니다.","tip":"‘만하면’ 앞은 ‘웬’입니다."},{"id":"wen-10","category":"웬/왠","scene":"메모","sentence":"별일 아닌데 ____ 그 문장이 마음에 걸려.","choices":["왠지","웬지"],"answer":"왠지","explain":"막연한 이유이므로 ‘왜인지’의 준말 ‘왠지’입니다.","tip":"‘왜 그런지 모르게’로 바꾸어지면 ‘왠지’입니다."},{"id":"wen-11","category":"웬/왠","scene":"메신저","sentence":"이게 ____ 행운이야. 막차 겨우 탔어.","choices":["웬","왠"],"answer":"웬","explain":"뜻밖의 행운은 ‘웬 행운’입니다.","tip":"‘어찌 된’이면 ‘웬’입니다."},{"id":"wen-12","category":"웬/왠","scene":"메신저","sentence":"____ 떡이야, 이렇게 일찍 나오다니.","choices":["웬","왠"],"answer":"웬","explain":"‘웬 떡’은 뜻밖의 좋은 일을 이르는 말입니다. ‘왠 떡’은 없습니다.","tip":"관형사 ‘웬’은 ‘어찌 된, 어떠한’입니다."},{"id":"eo-07","category":"어떻게/어떡해","scene":"메신저","sentence":"나 혼자 이 짐, ____?","choices":["어떡해","어떻게","어떻해"],"answer":"어떡해","explain":"문장이 ‘어떻게 해?’로 끝나므로 준말 ‘어떡해’입니다.","tip":"뒤에 다른 동사가 없으면 ‘어떡해’입니다."},{"id":"eo-08","category":"어떻게/어떡해","scene":"메일","sentence":"남은 일정은 ____ 나눌까요?","choices":["어떻게","어떡해","어떡게"],"answer":"어떻게","explain":"뒤에 ‘나누다’가 있으므로 부사 ‘어떻게’입니다. ‘어떡게’는 없는 표기입니다.","tip":"방법이 이어지면 ‘어떻게’입니다."},{"id":"eo-09","category":"어떻게/어떡해","scene":"메신저","sentence":"암호를 또 잊어버렸어. ____!","choices":["어떡해","어떻게","어떡게"],"answer":"어떡해","explain":"감탄으로 문장이 끝나므로 ‘어떻게 해’의 준말 ‘어떡해’입니다.","tip":"‘어떻해’와 ‘어떡게’는 둘 다 틀린 표기입니다."},{"id":"eo-10","category":"어떻게/어떡해","scene":"메일","sentence":"이 보고서는 ____ 요약하면 좋을까요?","choices":["어떻게","어떡해"],"answer":"어떻게","explain":"‘요약하면’을 꾸미므로 ‘어떻게’입니다. ‘어떡해’는 다른 서술어 앞에 오지 못합니다.","tip":"빈칸 뒤에 동사가 더 있으면 ‘어떻게’입니다."},{"id":"eo-11","category":"어떻게/어떡해","scene":"메신저","sentence":"차가 없는데 비까지 와. ____?","choices":["어떡해","어떻게","어떻해"],"answer":"어떡해","explain":"‘어떻게 해?’로 풀어지는 자리라 ‘어떡해’입니다.","tip":"그 말로 말이 끝나면 ‘어떡해’입니다."},{"id":"eo-12","category":"어떻게/어떡해","scene":"메모","sentence":"이 문장은 ____ 고치면 더 자연스러울까?","choices":["어떻게","어떡해","어떡게"],"answer":"어떻게","explain":"뒤에 ‘고치다’가 이어지므로 ‘어떻게’입니다.","tip":"‘어떡해 고치다’처럼 서술어를 겹치지 않습니다."},{"id":"du-09","category":"두음법칙","scene":"메일","sentence":"올해 공채 ____을 공유합니다.","choices":["합격률","합격율"],"answer":"합격률","explain":"‘격’은 ㄱ 받침입니다. ㄴ이 아닌 받침 뒤에서는 ‘률’로 적습니다.","tip":"‘합격률, 경쟁률, 취업률’은 ‘률’입니다."},{"id":"du-10","category":"두음법칙","scene":"메일","sentence":"분기 ____을 표로 정리했습니다.","choices":["성장률","성장율"],"answer":"성장률","explain":"‘장’은 ㅇ 받침이라 ‘성장률’입니다.","tip":"ㄴ 받침이 아니면 ‘률’입니다."},{"id":"du-11","category":"두음법칙","scene":"메일","sentence":"이번 전형 ____이 예상보다 높았습니다.","choices":["경쟁률","경쟁율"],"answer":"경쟁률","explain":"‘쟁’은 ㅇ 받침이므로 ‘경쟁률’입니다. ‘경쟁율’은 틀린 표기입니다.","tip":"모음이나 ㄴ 뒤에서만 ‘율’이 됩니다."},{"id":"du-12","category":"두음법칙","scene":"메일","sentence":"응답 결과는 ____로 적어 주세요.","choices":["백분율","백분률"],"answer":"백분율","explain":"‘분’은 ㄴ 받침입니다. ㄴ 받침 뒤의 ‘률’은 ‘율’로 적습니다.","tip":"‘백분율, 할인율, 환율’처럼 ㄴ 받침 뒤는 ‘율’입니다."},{"id":"ba-07","category":"바라다","scene":"메일","sentence":"무탈하시길 ____.","choices":["바랍니다","바래요"],"answer":"바랍니다","explain":"소원을 말하는 동사는 ‘바라다’이고 공손한 활용은 ‘바랍니다’. ‘바래요’는 틀린 활용입니다.","tip":"어간은 ‘바라-’라서 ‘바랍니다, 바라요, 바라’입니다."},{"id":"ba-08","category":"바라다","scene":"메신저","sentence":"좋은 결과가 있기를 ____.","choices":["바라","바래"],"answer":"바라","explain":"‘있기를 바라’가 맞습니다. ‘바래’는 이 뜻의 활용이 아닙니다.","tip":"원하는 마음은 ‘바라’, 색이 바래면 ‘바래’입니다."},{"id":"ba-09","category":"바라다","scene":"메일","sentence":"빠른 쾌차를 ____.","choices":["바랍니다","바래요"],"answer":"바랍니다","explain":"낫기를 원하는 말도 ‘바라다’입니다. ‘바래요’로 적지 않습니다.","tip":"편지 끝의 ‘바랍니다’는 ‘바라다’의 활용입니다."},{"id":"ba-10","category":"바라다","scene":"메모","sentence":"햇볕에 ____ 커튼을 갈았어요.","choices":["바랜","바란"],"answer":"바랜","explain":"색이 변하는 동사는 ‘바래다’라서 관형형은 ‘바랜’입니다. 소원의 ‘바라다’가 아닙니다.","tip":"빛바랜 물건은 ‘바랜’, 소원은 ‘바라는’입니다."},{"id":"ba-11","category":"바라다","scene":"메신저","sentence":"정류장까지 ____ 줬으면 해.","choices":["바래다","바라다"],"answer":"바래다","explain":"배웅은 ‘바래다’입니다. ‘바라다’는 소원을 말할 때 씁니다.","tip":"집까지 데려다 주는 말은 ‘바래다주다’입니다."},{"id":"ba-12","category":"바라다","scene":"메모","sentence":"늘 건강만 ____ 부모님이시다.","choices":["바라는","바래는"],"answer":"바라는","explain":"건강하기를 원한다는 관형형은 ‘바라는’입니다.","tip":"‘바라는 마음’은 ‘바라다’입니다."},{"id":"ma-07","category":"맞히다/맞추다","scene":"메신저","sentence":"퀴즈 세 개를 연속으로 ____.","choices":["맞혔어","맞췄어"],"answer":"맞혔어","explain":"정답을 알아맞힌 것은 ‘맞히다’입니다.","tip":"퀴즈·수수께끼·과녁은 ‘맞히다’입니다."},{"id":"ma-08","category":"맞히다/맞추다","scene":"메신저","sentence":"피아노 음정을 기준음에 ____.","choices":["맞췄어요","맞혔어요"],"answer":"맞췄어요","explain":"음정을 기준에 맞게 조정하는 것은 ‘맞추다’입니다.","tip":"시계, 음정, 일정처럼 맞대어 고치면 ‘맞추다’입니다."},{"id":"ma-09","category":"맞히다/맞추다","scene":"공지","sentence":"비밀번호 네 자리를 ____ 분은 손을 들어 주세요.","choices":["맞힌","맞춘"],"answer":"맞힌","explain":"번호를 알아맞힌 것이므로 ‘맞힌’입니다.","tip":"적중은 ‘히’, 비교와 조정은 ‘추’입니다."},{"id":"ma-10","category":"맞히다/맞추다","scene":"메일","sentence":"팀 호흡을 ____ 진행하겠습니다.","choices":["맞춰","맞혀"],"answer":"맞춰","explain":"호흡을 서로 같게 조정하는 것은 ‘맞추다’입니다.","tip":"‘보조를 맞추다’와 같은 ‘추’입니다."},{"id":"ma-11","category":"맞히다/맞추다","scene":"메모","sentence":"선수가 표적을 단번에 ____.","choices":["맞혔습니다","맞췄습니다"],"answer":"맞혔습니다","explain":"표적에 적중시킨 것은 ‘맞히다’입니다.","tip":"‘과녁을 맞히다’의 ‘히’를 기억하세요."},{"id":"ma-12","category":"맞히다/맞추다","scene":"메신저","sentence":"서로 답을 ____ 보니 두 칸이 달랐어요.","choices":["맞춰","맞혀"],"answer":"맞춰","explain":"답을 나란히 비교한 것은 ‘맞추다’입니다.","tip":"국립국어원 용례도 답을 ‘맞춰 보다’입니다."},{"id":"em-07","category":"어미","scene":"메신저","sentence":"내일 자리 ____.","choices":["맡을게요","맡을께요"],"answer":"맡을게요","explain":"약속의 어미는 ‘-ㄹ게요’입니다. ‘께’는 높임 조사이지 이 어미가 아닙니다.","tip":"‘할게요, 갈게요, 맡을게요’는 모두 ‘게’입니다."},{"id":"em-08","category":"어미","scene":"메신저","sentence":"먼저 밥 ____.","choices":["먹을게","먹을께"],"answer":"먹을게","explain":"의지를 나타내는 어미는 ‘-ㄹ게’입니다. ‘먹을께’는 틀린 표기입니다.","tip":"받침을 ‘ㄲ’으로 적지 않습니다."},{"id":"em-09","category":"어미","scene":"메일","sentence":"검토가 끝나는 대로 공유 ____.","choices":["할게요","할께요"],"answer":"할게요","explain":"공손한 약속도 ‘-ㄹ게요’입니다.","tip":"‘선생님께’의 ‘께’와 어미 ‘-게’를 섞지 마세요."},{"id":"em-10","category":"어미","scene":"메신저","sentence":"그 소식은 이미 ____.","choices":["들었을걸","들었을껄"],"answer":"들었을걸","explain":"추측의 어미는 ‘-ㄹ걸’입니다. ‘껄’은 없습니다.","tip":"‘했겠지’로 바꾸어 보면 ‘걸’이 맞습니다."},{"id":"em-11","category":"어미","scene":"메신저","sentence":"우산 ____ 그랬어.","choices":["챙길걸","챙길껄"],"answer":"챙길걸","explain":"후회할 때의 어미도 ‘-ㄹ걸’입니다.","tip":"‘챙길걸 그랬어’의 받침은 ‘ㄹ’입니다."},{"id":"em-12","category":"어미","scene":"메일","sentence":"다음 발표는 민수 씨가 ____.","choices":["할 거예요","할 꺼예요","할거예요"],"answer":"할 거예요","explain":"‘거’는 ‘것’이 줄어든 의존 명사라 띄어 쓰고, ‘꺼’로 적지 않습니다.","tip":"‘할 것’을 줄여도 ‘할 거예요’입니다."},{"id":"bu-07","category":"부사","scene":"메일","sentence":"수치는 ____ 대조해 주세요.","choices":["꼼꼼히","꼼꼼이"],"answer":"꼼꼼히","explain":"‘꼼꼼하다’의 부사는 ‘꼼꼼히’입니다. ‘꼼꼼이’는 틀린 표기입니다.","tip":"‘-하다’가 붙는 어근이라도 ‘깨끗이’처럼 언제나 ‘-이’는 아닙니다. ‘꼼꼼히’는 ‘히’입니다."},{"id":"bu-08","category":"부사","scene":"공지","sentence":"복도에서는 ____ 걸어 주세요.","choices":["조용히","조용이"],"answer":"조용히","explain":"‘조용하다’의 부사는 ‘조용히’입니다.","tip":"‘조용히, 솔직히, 자세히’는 ‘히’로 끝납니다."},{"id":"bu-09","category":"부사","scene":"메일","sentence":"____ 말하면 그 일정은 무리가 있습니다.","choices":["솔직히","솔직이"],"answer":"솔직히","explain":"‘솔직하다’의 부사는 ‘솔직히’입니다. ‘솔직이’는 틀린 표기입니다.","tip":"숨김없이 말할 때는 ‘솔직히’입니다."},{"id":"bu-10","category":"부사","scene":"메일","sentence":"증상을 ____ 적어 주세요.","choices":["자세히","자세이"],"answer":"자세히","explain":"‘자세하다’의 부사는 ‘자세히’입니다. ‘자세이’는 틀린 표기입니다.","tip":"자세히 보다, 자세히 적다. ‘히’로 끝납니다."},{"id":"bu-11","category":"부사","scene":"메신저","sentence":"남의 아이디어를 ____ 가져가면 안 돼.","choices":["버젓이","버젓히"],"answer":"버젓이","explain":"‘버젓하다’의 부사는 ‘버젓이’입니다. 한글 맞춤법 해설의 용례도 ‘버젓이’입니다.","tip":"거리낌 없이 드러낼 때는 ‘이’입니다. ‘버젓히’는 없습니다."},{"id":"bu-12","category":"부사","scene":"메신저","sentence":"의자를 ____ 놓아 줘.","choices":["나란히","나란이"],"answer":"나란히","explain":"가지런히 늘어놓는 부사는 ‘나란히’입니다.","tip":"‘나란하다’에서 온 부사는 ‘나란히’입니다."},{"id":"lo-07","category":"외래어","scene":"메일","sentence":"설문 ____를 첨부했습니다.","choices":["데이터","데이타"],"answer":"데이터","explain":"영어 data의 외래어 표기는 ‘데이터’입니다. ‘데이타’는 규범 표기가 아닙니다.","tip":"모음은 ‘에’입니다. ‘데이타’의 ‘이’는 옛 표기에 가깝습니다."},{"id":"lo-08","category":"외래어","scene":"메일","sentence":"원본 ____은 공유 폴더에 있습니다.","choices":["파일","화일"],"answer":"파일","explain":"영어 file의 외래어 표기는 ‘파일’입니다. ‘화일’은 쓰지 않습니다.","tip":"첫소리는 ‘ㅍ’입니다."},{"id":"lo-09","category":"외래어","scene":"메신저","sentence":"점심으로 ____를 샀어.","choices":["샌드위치","샌드윗지"],"answer":"샌드위치","explain":"영어 sandwich의 외래어 표기는 ‘샌드위치’입니다.","tip":"가운데는 ‘위’이고 끝은 ‘치’입니다. ‘윗지’가 아닙니다."},{"id":"lo-10","category":"외래어","scene":"메신저","sentence":"휴게실 ____이 또 고장 났어.","choices":["텔레비전","텔레비젼"],"answer":"텔레비전","explain":"영어 television의 외래어 표기는 ‘텔레비전’입니다. ‘텔레비젼’은 틀린 표기입니다.","tip":"끝 음절은 ‘전’입니다."},{"id":"lo-11","category":"외래어","scene":"메일","sentence":"고객 ____로 연결해 주세요.","choices":["센터","센타"],"answer":"센터","explain":"영어 center의 외래어 표기는 ‘센터’입니다. ‘센타’는 규범 표기가 아닙니다.","tip":"모음은 ‘ㅓ’입니다. ‘ㅏ’로 적지 않습니다."},{"id":"lo-12","category":"외래어","scene":"메신저","sentence":"토스트에 ____를 올렸다.","choices":["치즈","치스"],"answer":"치즈","explain":"영어 cheese의 외래어 표기는 ‘치즈’입니다. ‘치스’는 틀린 표기입니다.","tip":"받침은 ‘즈’입니다."}];
+(function () {
+  const NOTE_KEY = "matchum-note-v1";
+  const HIST_KEY = "matchum-history-v1";
+  const STATS_KEY = "matchum-stats-v1";
+  const CATEGORY_ORDER = [
+    "되/돼",
+    "안/않",
+    "로서/로써",
+    "웬/왠",
+    "든/던",
+    "어떻게/어떡해",
+    "사이시옷",
+    "띄어쓰기",
+    "바라다",
+    "맞히다/맞추다",
+    "두음법칙",
+    "어미",
+    "부사",
+    "어휘",
+    "외래어",
+  ];
+
+  const app = document.querySelector("#app");
+  const state = {
+    view: "home",
+    cats: new Set(),
+    round: null,
+    result: null,
+    reviewOnlyWrong: false,
+    storageError: false,
+    histConfirm: false,
+  };
+
+  function storageGet(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : fallback;
+    } catch (err) {
+      state.storageError = true;
+      return fallback;
+    }
+  }
+
+  function storageSet(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (err) {
+      state.storageError = true;
+      return false;
+    }
+  }
+
+  function loadNote() {
+    const data = storageGet(NOTE_KEY, {});
+    return Array.isArray(data) ? {} : data;
+  }
+
+  function loadHist() {
+    const data = storageGet(HIST_KEY, []);
+    return Array.isArray(data) ? data : [];
+  }
+
+  function emptyStat() {
+    return { correct: 0, wrong: 0, lastAt: 0, lastChoice: "", recent: [] };
+  }
+
+  function applyAttempt(stats, item, at) {
+    const row = stats[item.id] ? Object.assign(emptyStat(), stats[item.id]) : emptyStat();
+    if (!Array.isArray(row.recent)) row.recent = [];
+    if (item.correct) row.correct += 1;
+    else row.wrong += 1;
+    row.lastAt = at || row.lastAt;
+    row.lastChoice = item.choice || row.lastChoice;
+    row.recent.push({ at: at || 0, ok: !!item.correct, choice: item.choice || "" });
+    if (row.recent.length > 12) row.recent = row.recent.slice(-12);
+    stats[item.id] = row;
+  }
+
+  function loadStats() {
+    const stored = storageGet(STATS_KEY, null);
+    if (stored && !Array.isArray(stored)) return stored;
+    const stats = {};
+    loadHist().slice().reverse().forEach((round) => {
+      (round.items || []).forEach((item) => applyAttempt(stats, item, round.at));
+    });
+    if (Object.keys(stats).length) storageSet(STATS_KEY, stats);
+    return stats;
+  }
+
+  function recordAttempts(picks, at) {
+    const stats = loadStats();
+    picks.forEach((item) => applyAttempt(stats, item, at));
+    storageSet(STATS_KEY, stats);
+    return stats;
+  }
+
+  function modeLabel(mode) {
+    if (mode === "wrong") return "오답 복습";
+    if (mode === "weak") return "약점 집중";
+    return "연습";
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[ch]));
+  }
+
+  function shuffle(list) {
+    const arr = list.slice();
+    for (let i = arr.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function categoryCounts() {
+    const counts = {};
+    QUESTIONS.forEach((q) => {
+      counts[q.category] = (counts[q.category] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function filteredQuestions() {
+    if (state.cats.size === 0) return QUESTIONS.slice();
+    return QUESTIONS.filter((q) => state.cats.has(q.category));
+  }
+
+  function wrongQuestions() {
+    const note = loadNote();
+    let list = QUESTIONS.filter((q) => note[q.id]);
+    if (state.cats.size) list = list.filter((q) => state.cats.has(q.category));
+    return list;
+  }
+
+  function formatWhen(ts) {
+    try {
+      return new Date(ts).toLocaleString("ko-KR", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+    } catch (err) {
+      return new Date(ts).toLocaleString("ko-KR");
+    }
+  }
+
+  function formatDuration(ms) {
+    const total = Math.max(0, Math.round(ms / 1000));
+    const min = Math.floor(total / 60);
+    const sec = total % 60;
+    if (min <= 0) return sec + "초";
+    return min + "분 " + sec + "초";
+  }
+
+  function commentFor(score, total) {
+    if (!total) return "출제된 문제가 없습니다.";
+    const ratio = score / total;
+    if (ratio === 1) return "모두 맞았습니다. 이번 회차는 초록 펜만 남았습니다.";
+    if (ratio >= 0.8) return "대부분 안정적입니다. 빨간 펜이 간 문항만 공책 뒤에 남겨 두었습니다.";
+    if (ratio >= 0.5) return "절반은 넘겼습니다. 해설의 기억법을 오답노트에서 한 번 더 보면 됩니다.";
+    return "오늘은 어디가 흔들리는지 본 회차입니다. 틀린 문항의 규칙만 짧게 다시 읽어 보세요.";
+  }
+
+  function findQuestion(id) {
+    return QUESTIONS.find((q) => q.id === id) || null;
+  }
+
+  function categoryAccuracy(stats) {
+    const acc = {};
+    QUESTIONS.forEach((q) => {
+      const row = stats[q.id];
+      if (!row) return;
+      const n = row.correct + row.wrong;
+      if (!n) return;
+      if (!acc[q.category]) acc[q.category] = { correct: 0, attempts: 0 };
+      acc[q.category].correct += row.correct;
+      acc[q.category].attempts += n;
+    });
+    return acc;
+  }
+
+  function questionWeight(q, stats, acc, note) {
+    const row = stats[q.id];
+    const attempts = row ? row.correct + row.wrong : 0;
+    const cat = acc[q.category];
+    const catWeak = cat && cat.attempts ? 1 - cat.correct / cat.attempts : 0.35;
+    if (!attempts) return 0.28 + catWeak * 0.9;
+    const missed = 1 - row.correct / attempts;
+    const freshMiss = note[q.id] ? 2 : 0;
+    return 0.12 + missed * 4 + catWeak * 2.4 + freshMiss;
+  }
+
+  function weightedSample(pool, stats, count) {
+    const acc = categoryAccuracy(stats);
+    const note = loadNote();
+    const bag = pool.map((q) => ({ q: q, w: questionWeight(q, stats, acc, note) }));
+    const picked = [];
+    const n = Math.min(count, bag.length);
+    while (picked.length < n) {
+      const sum = bag.reduce((total, item) => total + item.w, 0);
+      let r = Math.random() * sum;
+      let idx = 0;
+      for (; idx < bag.length; idx += 1) {
+        r -= bag[idx].w;
+        if (r <= 0) break;
+      }
+      if (idx >= bag.length) idx = bag.length - 1;
+      picked.push(bag[idx].q);
+      bag.splice(idx, 1);
+    }
+    return picked;
+  }
+
+  function attemptTotal(stats) {
+    return Object.keys(stats).reduce((sum, id) => {
+      const row = stats[id];
+      return sum + row.correct + row.wrong;
+    }, 0);
+  }
+
+  function startRound(mode) {
+    const base = mode === "wrong" ? wrongQuestions() : filteredQuestions();
+    if (!base.length) return;
+    let picked = [];
+    let fallback = false;
+    if (mode === "weak") {
+      const stats = loadStats();
+      if (attemptTotal(stats) < 8) {
+        picked = shuffle(base).slice(0, Math.min(20, base.length));
+        fallback = true;
+      } else {
+        const acc = categoryAccuracy(stats);
+        const note = loadNote();
+        const weakCats = new Set(
+          Object.keys(acc).filter((cat) => acc[cat].attempts >= 3 && acc[cat].correct / acc[cat].attempts < 0.8)
+        );
+        const priority = [];
+        const rest = [];
+        base.forEach((q) => {
+          const row = stats[q.id];
+          const attempts = row ? row.correct + row.wrong : 0;
+          const missed = !!(row && row.wrong > 0 && attempts && row.correct / attempts < 1);
+          if (note[q.id] || missed || weakCats.has(q.category)) priority.push(q);
+          else rest.push(q);
+        });
+        const n = Math.min(20, base.length);
+        const takePriority = Math.min(priority.length, Math.round(n * 0.7));
+        const fromPriority = weightedSample(priority, stats, takePriority);
+        const fromRest = shuffle(rest).slice(0, n - fromPriority.length);
+        picked = shuffle(fromPriority.concat(fromRest));
+      }
+    } else {
+      picked = shuffle(base).slice(0, Math.min(20, base.length));
+    }
+    state.round = {
+      mode,
+      fallback: fallback,
+      done: false,
+      startedAt: Date.now(),
+      index: 0,
+      items: picked.map((q) => ({
+        id: q.id,
+        choices: shuffle(q.choices),
+        choice: null,
+      })),
+      cats: state.cats.size ? Array.from(state.cats) : ["전체"],
+    };
+    state.result = null;
+    state.view = "quiz";
+    state.reviewOnlyWrong = false;
+    render();
+  }
+
+  function finishRound() {
+    const round = state.round;
+    if (!round || round.done) return;
+    const note = loadNote();
+    const now = Date.now();
+    const picks = round.items.map((item) => {
+      const q = findQuestion(item.id);
+      const correct = item.choice === q.answer;
+      return {
+        id: item.id,
+        choice: item.choice,
+        correct,
+      };
+    });
+    picks.forEach((pick) => {
+      if (!pick.correct) {
+        const prev = note[pick.id] || { wrongCount: 0 };
+        note[pick.id] = {
+          id: pick.id,
+          wrongCount: prev.wrongCount + 1,
+          lastChoice: pick.choice,
+          updatedAt: now,
+        };
+      } else if (note[pick.id]) {
+        delete note[pick.id];
+      }
+    });
+    storageSet(NOTE_KEY, note);
+    recordAttempts(picks, now);
+    const score = picks.filter((pick) => pick.correct).length;
+    const record = {
+      at: now,
+      mode: round.mode,
+      fallback: !!round.fallback,
+      score,
+      total: picks.length,
+      elapsed: now - round.startedAt,
+      cats: round.cats,
+      items: picks,
+    };
+    const hist = loadHist();
+    hist.unshift(record);
+    storageSet(HIST_KEY, hist.slice(0, 40));
+    round.done = true;
+    state.result = record;
+    state.view = "result";
+    state.reviewOnlyWrong = false;
+    render();
+  }
+
+  function sentenceHtml(sentence, fill, ok) {
+    const parts = String(sentence).split("____");
+    const before = escapeHtml(parts[0] || "");
+    const after = escapeHtml(parts[1] || "");
+    if (!fill) {
+      return before + '<span class="blank" aria-hidden="true"></span>' + after;
+    }
+    return before + '<span class="blank filled good">' + escapeHtml(fill) + "</span>" + after;
+  }
+
+  function navHtml(compact) {
+    const noteCount = Object.keys(loadNote()).length;
+    const current = state.view === "quiz" || state.view === "result" ? "home" : state.view;
+    const items = compact
+      ? [["home", "연습"], ["note", "오답"], ["weak", "약점"], ["history", "기록"]]
+      : [["home", "연습"], ["note", "오답노트"], ["weak", "약점 분석"], ["history", "기록"]];
+    const buttons = items.map(([id, label]) => {
+      const badge = id === "note" && noteCount ? '<span class="badge">' + noteCount + "</span>" : "";
+      const cur = current === id ? ' aria-current="page"' : "";
+      return '<button type="button" data-action="nav" data-view="' + id + '"' + cur + ">" + label + badge + "</button>";
+    }).join("");
+    return buttons;
+  }
+
+  function shell(body) {
+    const banner = state.storageError
+      ? '<p class="banner">이 브라우저에서는 기록을 저장할 수 없습니다. 연습은 되지만 오답노트와 점수는 남지 않습니다.</p>'
+      : "";
+    return (
+      '<div class="wrap">' +
+      '<header class="mast"><div class="brand"><h1>맞춤공책</h1><p>맞으면 초록 펜, 틀리면 빨간 펜으로 바로잡습니다.</p></div>' +
+      '<nav class="nav" aria-label="주요">' + navHtml(false) + "</nav></header>" +
+      '<main class="sheet">' + banner + body + "</main></div>" +
+      '<nav class="tabbar" aria-label="주요">' + navHtml(true) + "</nav>"
+    );
+  }
+
+  function renderHome() {
+    const counts = categoryCounts();
+    const pool = filteredQuestions();
+    const wrong = wrongQuestions();
+    const allPressed = state.cats.size === 0;
+    let chips = '<button type="button" class="chip" data-action="all-cats" aria-pressed="' + allPressed + '">전체 <small>' + QUESTIONS.length + "</small></button>";
+    CATEGORY_ORDER.forEach((cat) => {
+      const on = state.cats.has(cat);
+      chips += '<button type="button" class="chip" data-action="cat" data-cat="' + escapeHtml(cat) + '" aria-pressed="' + on + '">' +
+        escapeHtml(cat) + " <small>" + (counts[cat] || 0) + "</small></button>";
+    });
+    const n = Math.min(20, pool.length);
+    const startLabel = pool.length > 20 ? "20문제 시작" : pool.length ? pool.length + "문제 모두 시작" : "해당하는 문제가 없습니다";
+    const wrongLabel = wrong.length
+      ? (wrong.length > 20 ? "오답 중 20문제 다시 풀기" : "오답 " + wrong.length + "문제 다시 풀기")
+      : "틀린 문제가 없습니다";
+    const scope = state.cats.size ? Array.from(state.cats).join(", ") : "전체";
+    return shell(
+      '<p class="lede">빈칸에 들어갈 표기를 고르면, 그 자리에서 채점하고 규칙을 남겨 둡니다.</p>' +
+      '<div class="stats"><span class="stat">문제 은행 <strong>' + QUESTIONS.length + '문항</strong></span>' +
+      '<span class="stat">한 회 <strong>최대 20문제</strong></span>' +
+      '<span class="stat">저장 <strong>이 기기에만</strong></span></div>' +
+      '<p class="block-label">범위 · ' + escapeHtml(scope) + "</p>" +
+      '<div class="chips">' + chips + "</div>" +
+      '<div class="actions">' +
+      '<button type="button" class="btn" data-action="start" data-mode="normal"' + (pool.length ? "" : " disabled") + ">" + startLabel + "</button>" +
+      '<button type="button" class="btn secondary" data-action="start" data-mode="wrong"' + (wrong.length ? "" : " disabled") + ">" + wrongLabel + "</button>" +
+      '<button type="button" class="btn secondary" data-action="start" data-mode="weak"' + (pool.length ? "" : " disabled") + ">약점 집중</button>" +
+      "</div>" +
+      '<p class="hint">범위에서 ' + pool.length + "문제를 뽑을 수 있습니다. 맞으면 초록 동그라미, 틀리면 빨간 줄입니다. 틀린 문제는 오답노트에 쌓이고, 약점 집중은 자주 틀린 범주를 더 뽑습니다.</p>"
+    );
+  }
+
+  function renderQuiz() {
+    const round = state.round;
+    const item = round.items[round.index];
+    const q = findQuestion(item.id);
+    const revealed = item.choice != null;
+    const correct = revealed && item.choice === q.answer;
+    const last = round.index === round.items.length - 1;
+    const pct = Math.round(((round.index + (revealed ? 1 : 0)) / round.items.length) * 100);
+    let choices = "";
+    item.choices.forEach((choice, index) => {
+      let cls = "choice";
+      if (revealed && choice === q.answer) cls += " is-right";
+      if (revealed && choice === item.choice && choice !== q.answer) cls += " is-wrong";
+      choices += '<button type="button" class="' + cls + '" data-action="pick" data-index="' + index + '"' +
+        (revealed ? " disabled" : "") + '><span class="num">' + (index + 1) + '</span><span class="label">' +
+        escapeHtml(choice) + "</span></button>";
+    });
+    let extra = "";
+    if (revealed) {
+      extra += '<div class="verdict ' + (correct ? "good" : "bad") + '">' + (correct ? "맞음" : "틀림") + "</div>";
+      extra += '<div class="explain ' + (correct ? "good" : "bad") + '"><h3>해설</h3><p>' + escapeHtml(q.explain) + "</p>";
+      if (q.tip) extra += '<p class="tip">기억 · ' + escapeHtml(q.tip) + "</p>";
+      extra += "</div>";
+      extra += '<div class="foot-actions"><button type="button" class="btn" data-action="next">' +
+        (last ? "결과 보기" : "다음 문제") + "</button>" +
+        '<button type="button" class="btn ghost" data-action="quit">나가기</button></div>';
+    } else {
+      extra += '<div class="foot-actions"><button type="button" class="btn ghost" data-action="quit">나가기</button></div>';
+    }
+    const fill = revealed ? q.answer : "";
+    return shell(
+      '<div class="qhead"><p class="kicker"><span class="dot"></span>' + escapeHtml(modeLabel(round.mode)) + " · " + escapeHtml(q.scene) + " · " + escapeHtml(q.category) +
+      "</p><p class=\"count\">" + (round.index + 1) + " / " + round.items.length + "</p></div>" +
+      '<div class="bar" aria-hidden="true"><span style="width:' + pct + '%"></span></div>' +
+      '<p class="sentence">' + sentenceHtml(q.sentence, fill, correct) + "</p>" +
+      '<div class="choices" role="group" aria-label="보기">' + choices + "</div>" +
+      extra +
+      '<p class="hint">' + (revealed
+        ? "초록 동그라미가 정답입니다. 빨간 줄은 고른 오답입니다."
+        : (round.fallback ? "기록이 아직 적어 이번 약점 집중은 무작위로 뽑았습니다. " : "") + "숫자 키 1–4로도 고를 수 있습니다.") + "</p>"
+    );
+  }
+
+  function renderResult() {
+    const result = state.result;
+    if (!result) return renderHome();
+    const visible = result.items.filter((item) => !state.reviewOnlyWrong || !item.correct);
+    let review = "";
+    visible.forEach((item, index) => {
+      const q = findQuestion(item.id);
+      if (!q) return;
+      const mark = item.correct ? '<span class="tag-ok">맞음</span>' : '<span class="tag-wrong">틀림</span>';
+      const pickCls = item.correct ? "pick-good" : "pick-bad";
+      review += "<article><header><span>" + escapeHtml(q.category) + " · " + escapeHtml(q.scene) + "</span>" + mark + "</header>" +
+        '<p class="mini">' + sentenceHtml(q.sentence, q.answer, item.correct) + "</p>" +
+        '<p>고른 답 · <span class="' + pickCls + '">' + escapeHtml(item.choice || "없음") + "</span>" +
+        (item.correct ? "" : ' · 정답 <span class="pick-good">' + escapeHtml(q.answer) + "</span>") + "</p>" +
+        '<p class="why">' + escapeHtml(q.explain) + "</p>" +
+        (q.tip ? '<p class="tip">기억 · ' + escapeHtml(q.tip) + "</p>" : "") +
+        "</article>";
+    });
+    if (!visible.length) review = '<p class="empty">이 범위에 해당하는 문항이 없습니다.</p>';
+    const noteLeft = Object.keys(loadNote()).length;
+    const missed = result.total - result.score;
+    const modeLine = modeLabel(result.mode) + (result.fallback ? " · 기록 부족, 무작위" : "");
+    return shell(
+      '<div class="scoreline"><p class="score"><span class="score-hit">' + result.score + '</span><span class="score-of"> / ' + result.total + "</span></p>" +
+      '<p class="meta">' + formatDuration(result.elapsed) + "<br>" +
+      escapeHtml(modeLine) + " · " + escapeHtml(result.cats.join(", ")) + "</p></div>" +
+      (missed ? '<p class="score-miss">틀린 ' + missed + "</p>" : "") +
+      '<p class="comment">' + commentFor(result.score, result.total) + "</p>" +
+      '<div class="actions">' +
+      '<button type="button" class="btn" data-action="start" data-mode="normal">새 문제 뽑기</button>' +
+      '<button type="button" class="btn secondary" data-action="start" data-mode="weak">약점 집중</button>' +
+      '<button type="button" class="btn secondary" data-action="start" data-mode="wrong"' + (noteLeft ? "" : " disabled") + ">오답노트 복습" +
+      (noteLeft ? " " + noteLeft : "") + "</button>" +
+      '<button type="button" class="btn ghost" data-action="nav" data-view="weak">약점 분석</button></div>' +
+      '<div class="filter-row">' +
+      '<button type="button" class="chip" data-action="review-filter" data-only="0" aria-pressed="' + (!state.reviewOnlyWrong) + '">전체 다시 보기</button>' +
+      '<button type="button" class="chip" data-action="review-filter" data-only="1" aria-pressed="' + state.reviewOnlyWrong + '">틀린 것만</button></div>' +
+      '<div class="review">' + review + "</div>"
+    );
+  }
+
+  function renderNote() {
+    const note = loadNote();
+    const ids = Object.keys(note);
+    if (!ids.length) {
+      return shell(
+        '<p class="lede">오답노트</p><p class="empty">아직 틀린 문제가 없습니다. 연습을 하다가 막히면 여기에 모입니다.</p>' +
+        '<button type="button" class="btn" data-action="nav" data-view="home">연습으로</button>'
+      );
+    }
+    const groups = {};
+    ids.forEach((id) => {
+      const q = findQuestion(id);
+      if (!q) return;
+      if (!groups[q.category]) groups[q.category] = [];
+      groups[q.category].push({ q, meta: note[id] });
+    });
+    let body = '<p class="lede">오답노트</p><p class="sub">틀린 횟수와 마지막 오답이 이 기기에 남아 있습니다. 복습에서 맞히면 그 문항은 노트에서 빠집니다.</p>' +
+      '<div class="actions"><button type="button" class="btn" data-action="start" data-mode="wrong">오답 ' +
+      Math.min(20, ids.length) + "문제 다시 풀기</button></div>";
+    CATEGORY_ORDER.forEach((cat) => {
+      const rows = groups[cat];
+      if (!rows) return;
+      rows.sort((a, b) => b.meta.updatedAt - a.meta.updatedAt);
+      body += '<section class="note-group"><h3>' + escapeHtml(cat) + " <span class=\"hint\">" + rows.length + "</span></h3>";
+      rows.forEach(({ q, meta }) => {
+        body += '<article class="note-card"><p class="kicker">' + escapeHtml(q.scene) + " · " + meta.wrongCount + "번 틀림 · " +
+          formatWhen(meta.updatedAt) + "</p>" +
+          '<p class="mini">' + sentenceHtml(q.sentence, q.answer, false) + "</p>" +
+          "<p>지난 오답 · " + escapeHtml(meta.lastChoice || "") + "</p>" +
+          '<p class="why">' + escapeHtml(q.explain) + "</p>" +
+          (q.tip ? '<p class="tip">기억 · ' + escapeHtml(q.tip) + "</p>" : "") +
+          '<button type="button" class="btn ghost" data-action="master" data-id="' + escapeHtml(q.id) + '">익혔어요</button></article>';
+      });
+      body += "</section>";
+    });
+    return shell(body);
+  }
+
+  function renderHistory() {
+    const hist = loadHist();
+    let body = '<p class="lede">지난 점수</p>';
+    if (!hist.length) {
+      body += '<p class="empty">아직 끝낸 회차가 없습니다. 연습을 마치면 점수가 여기에 쌓입니다.</p>';
+      body += '<button type="button" class="btn" data-action="nav" data-view="home">연습으로</button>';
+      return shell(body);
+    }
+    body += '<div class="history">';
+    hist.forEach((row) => {
+      const pct = row.total ? Math.round((row.score / row.total) * 100) : 0;
+      const missed = row.total - row.score;
+      body += "<article><div><strong>" + modeLabel(row.mode) + "</strong> · " +
+        escapeHtml((row.cats || []).join(", ")) + '<div class="when">' + formatWhen(row.at) + " · " + formatDuration(row.elapsed || 0) +
+        '</div></div><div class="pts"><span class="score-hit">' + row.score + "</span>/" + row.total +
+        (missed ? ' <span class="tag-wrong">-' + missed + "</span>" : "") +
+        '<div class="when">' + pct + "%</div></div></article>";
+    });
+    body += "</div>";
+    const clearLabel = state.histConfirm ? "점수와 약점 기록을 지울까요" : "기록 지우기";
+    body += '<div class="foot-actions"><button type="button" class="btn ghost" data-action="hist-clear">' + clearLabel + "</button></div>";
+    return shell(body);
+  }
+
+  function bandClass(ratio) {
+    if (ratio >= 0.8) return "good";
+    if (ratio >= 0.6) return "mid";
+    return "bad";
+  }
+
+  function renderWeak() {
+    const stats = loadStats();
+    const acc = categoryAccuracy(stats);
+    const totalAttempts = attemptTotal(stats);
+    if (!totalAttempts) {
+      return shell(
+        '<p class="lede">내 약점 분석</p>' +
+        '<p class="empty">아직 집계할 풀이가 없습니다. 한 회를 끝내면 범주별 맞힌 비율이 여기에 쌓입니다.</p>' +
+        '<button type="button" class="btn" data-action="nav" data-view="home">연습으로</button>'
+      );
+    }
+    const totalCorrect = Object.keys(stats).reduce((sum, id) => sum + (stats[id].correct || 0), 0);
+    const overall = Math.round((totalCorrect / totalAttempts) * 100);
+    const rows = CATEGORY_ORDER.map((cat) => {
+      const row = acc[cat];
+      if (!row || !row.attempts) return null;
+      const ratio = row.correct / row.attempts;
+      return { cat: cat, attempts: row.attempts, correct: row.correct, ratio: ratio };
+    }).filter(Boolean).sort((a, b) => a.ratio - b.ratio || b.attempts - a.attempts);
+    let bars = "";
+    rows.forEach((row) => {
+      const pct = Math.round(row.ratio * 100);
+      bars += '<div class="wrow"><div class="wname">' + escapeHtml(row.cat) +
+        "<small>" + row.attempts + "회 · 맞힌 " + row.correct + "</small></div>" +
+        '<div class="wtrack" role="img" aria-label="' + escapeHtml(row.cat) + " " + pct + '%"><span class="wfill ' +
+        bandClass(row.ratio) + '" style="width:' + Math.max(pct, 4) + '%"></span></div></div>';
+    });
+    const weakest = rows.filter((row) => row.ratio < 1).slice(0, 3);
+    const call = weakest.length
+      ? '<p class="weak-call">가장 흔들리는 범주 · <strong>' + weakest.map((row) => escapeHtml(row.cat) + " " + Math.round(row.ratio * 100) + "%").join(" · ") + "</strong></p>"
+      : '<p class="weak-call">기록된 범주는 모두 맞았습니다. 아직 안 푼 유형을 약점 집중으로 섞어 보세요.</p>';
+    const misses = [];
+    Object.keys(stats).forEach((id) => {
+      const row = stats[id];
+      if (!row.wrong) return;
+      const q = findQuestion(id);
+      if (!q) return;
+      const attempts = row.correct + row.wrong;
+      misses.push({ q: q, row: row, attempts: attempts, ratio: row.correct / attempts });
+    });
+    misses.sort((a, b) => b.row.wrong - a.row.wrong || a.ratio - b.ratio);
+    let list = "";
+    misses.slice(0, 8).forEach((item) => {
+      list += "<article><p class=\"kicker\">" + escapeHtml(item.q.category) + " · 틀림 " + item.row.wrong + " · " +
+        Math.round(item.ratio * 100) + "%</p>" +
+        '<p class="mini">' + sentenceHtml(item.q.sentence, item.q.answer, false) + "</p>" +
+        '<p>최근 오답 · <span class="pick-bad">' + escapeHtml(item.row.lastChoice || "") + "</span></p></article>";
+    });
+    if (!list) list = '<p class="empty">틀린 문항이 없습니다.</p>';
+    return shell(
+      '<p class="lede">내 약점 분석</p>' +
+      '<p class="sub">이 기기에 남은 문항별 풀이 기록입니다. 막대는 맞힌 비율이고, 초록은 80% 이상, 빨강은 60% 미만입니다.</p>' +
+      '<div class="stats"><span class="stat">풀이 <strong>' + totalAttempts + '회</strong></span>' +
+      '<span class="stat">전체 정답률 <strong class="score-hit">' + overall + '%</strong></span></div>' +
+      call +
+      '<p class="block-label">범주별 맞힌 비율</p><div class="wbars">' + bars + "</div>" +
+      '<div class="actions"><button type="button" class="btn" data-action="start" data-mode="weak">약점 집중 ' + Math.min(20, filteredQuestions().length) + "문제</button></div>" +
+      '<p class="block-label">자주 틀린 문항</p><div class="miss-list">' + list + "</div>"
+    );
+  }
+
+  function render() {
+    const titles = {
+      home: "맞춤공책",
+      quiz: "연습 중 · 맞춤공책",
+      result: "결과 · 맞춤공책",
+      note: "오답노트 · 맞춤공책",
+      weak: "내 약점 분석 · 맞춤공책",
+      history: "기록 · 맞춤공책",
+    };
+    document.title = titles[state.view] || "맞춤공책";
+    let html = "";
+    if (state.view === "quiz" && state.round && !state.round.done) html = renderQuiz();
+    else if (state.view === "result") html = renderResult();
+    else if (state.view === "note") html = renderNote();
+    else if (state.view === "weak") html = renderWeak();
+    else if (state.view === "history") html = renderHistory();
+    else {
+      state.view = "home";
+      html = renderHome();
+    }
+    app.innerHTML = html;
+    window.scrollTo(0, 0);
+  }
+
+  app.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-action]");
+    if (!target) return;
+    const action = target.dataset.action;
+    if (action === "nav") {
+      const view = target.dataset.view;
+      if (view === "home" && state.round && !state.round.done) state.view = "quiz";
+      else state.view = view;
+      state.histConfirm = false;
+      render();
+      return;
+    }
+    if (action === "all-cats") {
+      state.cats = new Set();
+      render();
+      return;
+    }
+    if (action === "cat") {
+      const cat = target.dataset.cat;
+      if (state.cats.has(cat)) state.cats.delete(cat);
+      else state.cats.add(cat);
+      render();
+      return;
+    }
+    if (action === "start") {
+      startRound(target.dataset.mode);
+      return;
+    }
+    if (action === "pick") {
+      const round = state.round;
+      if (!round || round.done) return;
+      const item = round.items[round.index];
+      if (item.choice != null) return;
+      item.choice = item.choices[Number(target.dataset.index)];
+      render();
+      return;
+    }
+    if (action === "next") {
+      const round = state.round;
+      if (!round) return;
+      if (round.index + 1 >= round.items.length) finishRound();
+      else {
+        round.index += 1;
+        render();
+      }
+      return;
+    }
+    if (action === "quit") {
+      state.round = null;
+      state.view = "home";
+      render();
+      return;
+    }
+    if (action === "review-filter") {
+      state.reviewOnlyWrong = target.dataset.only === "1";
+      render();
+      return;
+    }
+    if (action === "master") {
+      const note = loadNote();
+      delete note[target.dataset.id];
+      storageSet(NOTE_KEY, note);
+      render();
+      return;
+    }
+    if (action === "hist-clear") {
+      if (!state.histConfirm) {
+        state.histConfirm = true;
+        render();
+        return;
+      }
+      storageSet(HIST_KEY, []);
+      storageSet(STATS_KEY, {});
+      state.histConfirm = false;
+      render();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (state.view !== "quiz" || !state.round || state.round.done) return;
+    const item = state.round.items[state.round.index];
+    if (!item) return;
+    if (item.choice == null) {
+      const n = Number(event.key);
+      if (n >= 1 && n <= item.choices.length) {
+        item.choice = item.choices[n - 1];
+        render();
+      }
+      return;
+    }
+    if (event.key === "Enter") {
+      if (state.round.index + 1 >= state.round.items.length) finishRound();
+      else {
+        state.round.index += 1;
+        render();
+      }
+    }
+  });
+
+  render();
+})();
+
+  </script>
+</body>
+</html>
