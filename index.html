@@ -221,6 +221,8 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 }
 .blank.filled.good { color: var(--good); border-bottom-color: var(--good); }
 
+.written-answer { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.written-answer input { flex: 1; min-width: 0; padding: 10px; font: inherit; color: inherit; }
 .choices { display: flex; flex-direction: column; margin: 8px 0 4px; }
 .choice {
   position: relative;
@@ -497,6 +499,203 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
     histConfirm: false,
   };
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyA9-Rhbs9JeZ3149T9h3hq_IYVUxiAZYXU",
+    authDomain: "matchum-notebook.firebaseapp.com",
+    projectId: "matchum-notebook",
+    appId: "1:1096138868356:web:24d3d414938527fc3564d1",
+  };
+  const sync = { status: "연결 중", account: null, service: null };
+  const syncEnabled = location.protocol === "https:" && location.hostname === "milkysookie.github.io";
+
+  function emptyProgress() {
+    return { [NOTE_KEY]: {}, [HIST_KEY]: [], [STATS_KEY]: {} };
+  }
+
+  function reviseProgress(progress, change) {
+    const note = progress[NOTE_KEY];
+    const stats = progress[STATS_KEY];
+    if (change.type === "import") {
+      const incoming = change.data;
+      Object.values(incoming[NOTE_KEY]).forEach((row) => {
+        if (!note[row.id] || row.updatedAt > note[row.id].updatedAt) note[row.id] = row;
+      });
+      Object.keys(incoming[STATS_KEY]).forEach((id) => {
+        const row = incoming[STATS_KEY][id];
+        const old = stats[id];
+        if (!old || row.lastAt > old.lastAt) stats[id] = row;
+      });
+      const records = [...progress[HIST_KEY], ...incoming[HIST_KEY]];
+      progress[HIST_KEY] = [...new Map(records.map((record) => [JSON.stringify(record), record])).values()]
+        .sort((a, b) => b.at - a.at).slice(0, 40);
+    } else if (change.type === "round") {
+      const record = change.record;
+      record.items.forEach((pick) => {
+        const previous = note[pick.id];
+        if (pick.correct) delete note[pick.id];
+        else note[pick.id] = {
+          id: pick.id,
+          wrongCount: (previous?.wrongCount || 0) + 1,
+          lastChoice: pick.choice,
+          updatedAt: record.at,
+        };
+        applyAttempt(stats, pick, record.at);
+      });
+      progress[HIST_KEY] = [record, ...progress[HIST_KEY]].sort((a, b) => b.at - a.at).slice(0, 40);
+    } else if (change.type === "master") {
+      delete note[change.id];
+    } else if (change.type === "clear") {
+      progress[HIST_KEY] = [];
+      progress[STATS_KEY] = {};
+    }
+    return progress;
+  }
+
+  function refreshSyncUi() {
+    if (state.view !== "quiz") render();
+  }
+
+  function queueChange(change) {
+    const account = sync.account;
+    account.pending.push({ ...change, idempotencyKey: crypto.randomUUID() });
+    storageSet(account.queueKey, account.pending);
+    flushProgress(account);
+  }
+
+  async function flushProgress(account) {
+    if (!account.ready || account.saving || sync.account !== account || !account.pending.length) return;
+    account.saving = true;
+    sync.status = "기록 저장 중";
+    try {
+      while (account.pending.length && sync.account === account) {
+        const change = account.pending[0];
+        const { db, firestore } = sync.service;
+        const receipt = firestore.doc(account.ref, "changes", change.idempotencyKey);
+        const result = await firestore.runTransaction(db, async (tx) => {
+          const saved = await tx.get(account.ref);
+          const processed = await tx.get(receipt);
+          const current = saved.data() || { record: JSON.stringify(emptyProgress()), revision: 0 };
+          if (processed.exists()) return current;
+          const record = reviseProgress(JSON.parse(current.record), change);
+          const next = { record: JSON.stringify(record), revision: current.revision + 1 };
+          tx.set(account.ref, next);
+          tx.set(receipt, { applied: true });
+          return next;
+        });
+        updateCloudProgress(account, result);
+        account.pending.shift();
+        storageSet(account.queueKey, account.pending);
+      }
+      if (sync.account === account) sync.status = "기기 간 동기화 중";
+    } catch {
+      if (sync.account === account) sync.status = "저장 대기 중 · 다시 시도해 주세요";
+    } finally {
+      account.saving = false;
+      refreshSyncUi();
+    }
+  }
+
+  function updateCloudProgress(account, data) {
+    if (!data || data.revision < account.revision) return;
+    account.revision = data.revision;
+    account.progress = JSON.parse(data.record);
+    storageSet(account.cacheKey, data);
+  }
+
+  async function prepareSync() {
+    if (!syncEnabled) return;
+    try {
+      const sdk = "https://www.gstatic.com/firebasejs/13.4.0/";
+      const [firebase, authentication, firestore] = await Promise.all([
+        import(sdk + "firebase-app.js"),
+        import(sdk + "firebase-auth.js"),
+        import(sdk + "firebase-firestore.js"),
+      ]);
+      const project = firebase.initializeApp(firebaseConfig);
+      const auth = authentication.getAuth(project);
+      const db = firestore.getFirestore(project);
+      sync.service = { auth, authentication, db, firestore };
+      authentication.onAuthStateChanged(auth, (user) => {
+        sync.account?.unsubscribe?.();
+        sync.account = null;
+        sync.status = "이 기기에만 저장";
+        if (user) {
+          const queueKey = "matchum-sync-queue-" + user.uid;
+          const importedKey = "matchum-sync-imported-" + user.uid;
+          const cacheKey = "matchum-sync-cache-" + user.uid;
+          const local = { [NOTE_KEY]: loadNote(), [HIST_KEY]: loadHist(), [STATS_KEY]: loadStats() };
+          const account = {
+            queueKey, importedKey, cacheKey, local, revision: 0, progress: emptyProgress(), ready: false,
+            pending: storageGet(queueKey, []),
+            ref: firestore.doc(db, "progress", user.uid),
+          };
+          updateCloudProgress(account, storageGet(cacheKey, null));
+          sync.account = account;
+          sync.status = "계정 기록 불러오는 중";
+          account.unsubscribe = firestore.onSnapshot(account.ref, (snapshot) => {
+            const data = snapshot.data();
+            if (snapshot.metadata.hasPendingWrites) return;
+            updateCloudProgress(account, data);
+            account.ready = true;
+            sync.status = "기기 간 동기화 중";
+            flushProgress(account);
+            refreshSyncUi();
+          }, () => {
+            sync.status = "계정 기록을 불러오지 못했습니다";
+            refreshSyncUi();
+          });
+        }
+        refreshSyncUi();
+      });
+      window.addEventListener("online", () => { if (sync.account) flushProgress(sync.account); });
+    } catch {
+      sync.status = "로그인 연결을 불러오지 못했습니다";
+      refreshSyncUi();
+    }
+  }
+
+  function syncControls() {
+    if (!syncEnabled) return "";
+    const account = sync.account;
+    const hasLocal = account && (Object.keys(account.local[NOTE_KEY]).length || account.local[HIST_KEY].length || Object.keys(account.local[STATS_KEY]).length);
+    const imported = account && storageGet(account.importedKey, null);
+    return '<div class="foot-actions"><span role="status">' + escapeHtml(sync.status) + '</span>' +
+      (account
+        ? '<button type="button" class="btn ghost" data-action="sign-out">로그아웃</button>' +
+          (hasLocal && !imported && account.ready ? '<button type="button" class="btn secondary" data-action="import-progress">이 기기의 기존 기록 가져오기</button>' : '') +
+          (account.pending.length && !account.saving ? '<button type="button" class="btn secondary" data-action="sync-retry">저장 다시 시도</button>' : '')
+        : sync.service ? '<button type="button" class="btn secondary" data-action="google-login">Google로 로그인</button>' : '') +
+      '</div>';
+  }
+
+  async function handleSyncAction(action) {
+    if (!sync.service) return;
+    const { auth, authentication } = sync.service;
+    const account = sync.account;
+    try {
+      if (action === "google-login") {
+        await authentication.signInWithPopup(auth, new authentication.GoogleAuthProvider());
+      } else if (action === "sign-out") {
+        await authentication.signOut(auth);
+      } else if (action === "import-progress" && account?.ready) {
+        queueChange({ type: "import", data: account.local });
+        storageSet(account.importedKey, { imported: true });
+      } else if (action === "sync-retry" && account) {
+        await flushProgress(account);
+      }
+    } catch {
+      sync.status = "로그인에 실패했습니다. 팝업을 허용한 뒤 다시 시도해 주세요.";
+    }
+    refreshSyncUi();
+  }
+
+  function progressValue(key, fallback) {
+    const account = sync.account;
+    if (!account) return storageGet(key, fallback);
+    const progress = account.saving ? account.progress : account.pending.reduce(reviseProgress, structuredClone(account.progress));
+    return progress[key] ?? fallback;
+  }
+
   function storageGet(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -520,12 +719,12 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
   }
 
   function loadNote() {
-    const data = storageGet(NOTE_KEY, {});
+    const data = progressValue(NOTE_KEY, {});
     return Array.isArray(data) ? {} : data;
   }
 
   function loadHist() {
-    const data = storageGet(HIST_KEY, []);
+    const data = progressValue(HIST_KEY, []);
     return Array.isArray(data) ? data : [];
   }
 
@@ -546,7 +745,7 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
   }
 
   function loadStats() {
-    const stored = storageGet(STATS_KEY, null);
+    const stored = progressValue(STATS_KEY, null);
     if (stored && !Array.isArray(stored)) return stored;
     const stats = {};
     loadHist().slice().reverse().forEach((round) => {
@@ -738,6 +937,8 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
       items: picked.map((q) => ({
         id: q.id,
         choices: shuffle(q.choices),
+        written: q.category === "띄어쓰기" && q.choices.every((choice) =>
+          choice.replace(/ /g, "") === q.answer.replace(/ /g, "")),
         choice: null,
       })),
       cats: state.cats.size ? Array.from(state.cats) : ["전체"],
@@ -762,7 +963,7 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
         correct,
       };
     });
-    picks.forEach((pick) => {
+    if (!sync.account) picks.forEach((pick) => {
       if (!pick.correct) {
         const prev = note[pick.id] || { wrongCount: 0 };
         note[pick.id] = {
@@ -775,8 +976,10 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
         delete note[pick.id];
       }
     });
-    storageSet(NOTE_KEY, note);
-    recordAttempts(picks, now);
+    if (!sync.account) {
+      storageSet(NOTE_KEY, note);
+      recordAttempts(picks, now);
+    }
     const score = picks.filter((pick) => pick.correct).length;
     const record = {
       at: now,
@@ -788,9 +991,8 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
       cats: round.cats,
       items: picks,
     };
-    const hist = loadHist();
-    hist.unshift(record);
-    storageSet(HIST_KEY, hist.slice(0, 40));
+    if (sync.account) queueChange({ type: 'round', record });
+    else storageSet(HIST_KEY, [record, ...loadHist()].slice(0, 40));
     round.done = true;
     state.result = record;
     state.view = "result";
@@ -830,7 +1032,7 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
       '<div class="wrap">' +
       '<header class="mast"><div class="brand"><h1>맞춤공책</h1><p>맞으면 초록 펜, 틀리면 빨간 펜으로 바로잡습니다.</p></div>' +
       '<nav class="nav" aria-label="주요">' + navHtml(false) + "</nav></header>" +
-      '<main class="sheet">' + banner + body + "</main></div>" +
+      '<main class="sheet">' + banner + body + (state.view === 'quiz' ? '' : syncControls()) + "</main></div>" +
       '<nav class="tabbar" aria-label="주요">' + navHtml(true) + "</nav>"
     );
   }
@@ -856,7 +1058,7 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
       '<p class="lede">빈칸에 들어갈 표기를 고르면, 그 자리에서 채점하고 규칙을 남겨 둡니다.</p>' +
       '<div class="stats"><span class="stat">문제 은행 <strong>' + QUESTIONS.length + '문항</strong></span>' +
       '<span class="stat">한 회 <strong>최대 20문제</strong></span>' +
-      '<span class="stat">저장 <strong>이 기기에만</strong></span></div>' +
+      '<span class="stat">저장 <strong>' + (sync.account ? 'Google 계정' : '이 기기에만') + '</strong></span></div>' +
       '<p class="block-label">범위 · ' + escapeHtml(scope) + "</p>" +
       '<div class="chips">' + chips + "</div>" +
       '<div class="actions">' +
@@ -885,6 +1087,14 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
         (revealed ? " disabled" : "") + '><span class="num">' + (index + 1) + '</span><span class="label">' +
         escapeHtml(choice) + "</span></button>";
     });
+    if (item.written) {
+      const prompt = q.answer.replace(/ /g, "");
+      choices = revealed
+        ? '<p>내 답 · ' + escapeHtml(item.choice) + '</p><p>정답 · ' + escapeHtml(q.answer) + '</p>'
+        : '<p><label for="written-answer">알맞게 띄어 쓰세요 · ' + escapeHtml(prompt) + '</label></p>' +
+          '<form class="written-answer"><input id="written-answer" name="answer" required autocomplete="off" ' +
+          'spellcheck="false" maxlength="120" lang="ko"><button class="btn" type="submit">채점</button></form>';
+    }
     let extra = "";
     if (revealed) {
       extra += '<div class="verdict ' + (correct ? "good" : "bad") + '">' + (correct ? "맞음" : "틀림") + "</div>";
@@ -906,8 +1116,8 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
       '<div class="choices" role="group" aria-label="보기">' + choices + "</div>" +
       extra +
       '<p class="hint">' + (revealed
-        ? "초록 동그라미가 정답입니다. 빨간 줄은 고른 오답입니다."
-        : (round.fallback ? "기록이 아직 적어 이번 약점 집중은 무작위로 뽑았습니다. " : "") + "숫자 키 1–4로도 고를 수 있습니다.") + "</p>"
+        ? (item.written ? "Enter 키로 다음으로 넘어갈 수 있습니다." : "초록 동그라미가 정답입니다. 빨간 줄은 고른 오답입니다.")
+        : (round.fallback ? "기록이 아직 적어 이번 약점 집중은 무작위로 뽑았습니다. " : "") + (item.written ? "답을 입력하고 채점 버튼을 누르세요." : "숫자 키 1–4로도 고를 수 있습니다.")) + "</p>"
     );
   }
 
@@ -1109,6 +1319,10 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
     const target = event.target.closest("[data-action]");
     if (!target) return;
     const action = target.dataset.action;
+    if (['google-login', 'sign-out', 'import-progress', 'sync-retry'].includes(action)) {
+      handleSyncAction(action);
+      return;
+    }
     if (action === "nav") {
       const view = target.dataset.view;
       if (view === "home" && state.round && !state.round.done) state.view = "quiz";
@@ -1166,7 +1380,8 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
     if (action === "master") {
       const note = loadNote();
       delete note[target.dataset.id];
-      storageSet(NOTE_KEY, note);
+      if (sync.account) queueChange({ type: 'master', id: target.dataset.id });
+      else storageSet(NOTE_KEY, note);
       render();
       return;
     }
@@ -1176,18 +1391,35 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
         render();
         return;
       }
-      storageSet(HIST_KEY, []);
-      storageSet(STATS_KEY, {});
+      if (sync.account) queueChange({ type: 'clear' });
+      else {
+        storageSet(HIST_KEY, []);
+        storageSet(STATS_KEY, {});
+      }
       state.histConfirm = false;
       render();
     }
   });
 
+  app.addEventListener("submit", (event) => {
+    if (!event.target.matches(".written-answer")) return;
+    event.preventDefault();
+    if (state.view !== "quiz" || !state.round || state.round.done) return;
+    const item = state.round.items[state.round.index];
+    const answer = event.target.elements.answer.value.normalize("NFC").trim().replace(/\s+/g, " ");
+    if (!item.written || item.choice != null || !answer) return;
+    item.choice = answer;
+    render();
+    app.querySelector('[data-action="next"]').focus();
+  });
+
   document.addEventListener("keydown", (event) => {
+    if (event.isComposing || event.target instanceof HTMLInputElement) return;
     if (state.view !== "quiz" || !state.round || state.round.done) return;
     const item = state.round.items[state.round.index];
     if (!item) return;
     if (item.choice == null) {
+      if (item.written) return;
       const n = Number(event.key);
       if (n >= 1 && n <= item.choices.length) {
         item.choice = item.choices[n - 1];
@@ -1205,6 +1437,7 @@ const QUESTIONS = [{"id":"doe-01","category":"되/돼","scene":"메신저","sent
   });
 
   render();
+  prepareSync();
 })();
 
   </script>
